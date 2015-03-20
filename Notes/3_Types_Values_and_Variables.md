@@ -57,3 +57,18 @@ Math.sin(Math.PI/2)	// 1
 Math.log(10)		// 2.302585092994046	
 Math.exp(3)			// 20.085536923187668
 ```
+
+JavaScript中算术运算在溢出时不提示错误，但结果会为无穷大，`Infinity`或者`-Infinity`。如除数为0的情况。
+
+当0除以0时，或者无穷大除以无穷大、给负数开方、将数字与非数字或不能转换为数字的操作数一起操作时，结果都返回NaN(Not a Number)。
+
+JavaScript中NaN不与任何值相等，包括其本身。也就是说不通过`x==NaN`来判断x是否是NaN，可用使用`x!=x`进行判断。或者使用函数isNaN()来判断。函数isFinite()当参数不是NaN、Infinity或-Infinity时，返回true。
+
+JavaScript中特殊的值还有+0和-0。它们是相等的，除了将其作为除数。如
+```javascript
+var zero = 0;
+var negz = -1;
+zero === negz;		// true
+1/zero === 1/negz;  // false
+```
+### 3.1.4 二进制浮点数和四舍五入错误
