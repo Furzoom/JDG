@@ -51,30 +51,35 @@ $str
 		
 ### 2.4.2 保留字
 JavaScript将一些标识符作为自己的关键字，因此不能再将其作为标识符。
-		break					delete			function			return					typeof
-		case					do 					if						switch					var
-		catch					else				in						this						void
-		continue			false				instanceof		throw						while
-		debugger			finally			new						true						with
-		default				for					null					try
+
+		break				delete			function			return				typeof
+		case				do 				if					switch				var
+		catch				else			in					this				void
+		continue			false			instanceof			throw				while
+		debugger			finally			new					true				with
+		default				for				null				try
 
 JavaScript还保留一些关键字，可能会在以后版本中使用：
-		class					const				enum					export					extends		
+
+		class				const			enum				export				extends		
 		import				super
 
 此外，下面的关键字在变通的JavaScript代码中合法的，在严格的模式下是保留字：
-		private				let					implements		public					yield
+
+		private				let				implements			public				yield
 		interface			package			protected			static
 
 在严格的模式下，下面的标识符不是保留字，但不能做变量名、函数名或者参数名使用：
+
 		arguments	eval
 
 JavaScript定义了一些全局变量和函数，就避免将其作为变量名和函数名：
-		arguments			encodeURI		Infinity			Number					RegExp
-		Array					String 			isFinite			Object					encodeURIComponent
-		Boolean				Error				isNaN					parseFloat			SyntaxError
-		Date					eval				JSON					parseInt				TypeError
-		decodeURI			EvalError		Math					RangeError			undefined
-		URIError			Function		NaN						ReferenceError	decodeURIComponent
+
+		arguments			encodeURI		Infinity			Number				RegExp
+		Array				String 			isFinite			Object				encodeURIComponent
+		Boolean				Error			isNaN				parseFloat			SyntaxError
+		Date				eval			JSON				parseInt			TypeError
+		decodeURI			EvalError		Math				RangeError			undefined
+		URIError			Function		NaN					ReferenceError		decodeURIComponent
 ## 2.5 可选的分号
 JavaScript使用分号(;)将语句分隔开，如果语句独占一行，也可以省略末尾分号。最好**明确**使用分号标识语句结束。
