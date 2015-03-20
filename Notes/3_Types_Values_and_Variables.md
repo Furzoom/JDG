@@ -50,7 +50,7 @@ Math.abs(-3)		// 3
 Math.max(1, 3, 4)	// 4
 Math.min(1, 3, 4)	// 1
 Math.random()		// Maybe 0.31342803593724966
-Math.Pi				// 3.141592653589793
+Math.PI				// 3.141592653589793
 Math.E				// 2.718281828459045
 Math.sqrt(3)		// 1.7320508075688772
 Math.sin(Math.PI/2)	// 1
