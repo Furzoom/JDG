@@ -1,5 +1,5 @@
 # JDG
-Some useful sample codes!
+Some useful sample codes in [javascript](http://furzoom.com/javascript/ "javascript")!
 
 Big title
 ==
