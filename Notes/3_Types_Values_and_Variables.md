@@ -123,7 +123,9 @@ JavaScript字符串中有特殊含义或者控制字符需要使用转义字符(
 * \uXXXX	4位16进制数指定的Unicode字符
 ```
 ### 3.2.3 字符串的使用
+
 JavaScript内置功能之一就是字符串的连接，使用加号(+)实现，取得字符串的长度等方法，如：
+
 ```javascript
 var msg = 'Welcome to ' + 'furzoom!';	// msg = "Welcome to furzoom!" 
 msg.length;								// 19
@@ -182,3 +184,77 @@ t的值为undefined。第2行会创建临时对象，并给其len属性赋值为
 存取字符串、数字和布尔值的属性时创建的临时对象称做包装对象。由于字符串、数字、布尔值都是只读对象，不能给其定义新的属性。但是可以通过String()、Number()、Boolean()显式地创建对象，`==`将原始值和其包装对象视为相等，`===`将原始值和其包装对象视为不相等。
 
 ## 3.7 不可变的原始值和可变的对象引用
+JavaScript中原始值与对象有着根本的区别。原始值为是可更改的：任何方法都无法更改一个原始值。对数字和布尔值容易理解，字符串同样如此。如：
+
+```javascript
+var s = 'hello';
+s.toUpperCase();	// "HELLO"
+s					// "hello"
+````
+
+原始值的比较是值的比较，只能它们的值相等时它们能相等。对字符串来讲，只有它们长度相等且每个索引位置的字符都相等时才相等。
+
+对象是可变的，它们的值是可以修改的：
+
+```javascript
+var o = {x:1};
+o.x = 2;
+o.y = 3;			// {x: 2, y: 3}
+
+var a = [1, 2, 3];
+a[0] = 4;			// [4, 2, 3]
+```
+
+对象的比较并非值的比较：即使两个对象包含同样的属性及相同的值，它们也是不相等的。各个索引元素完全相等的两个数组也不相等。如：
+
+```javascript
+var o = {x: 1};
+var p = {x: 1};
+o === p;			// false
+
+var a = [];
+var b = [];
+a === b;			// false
+```
+
+通常称对象为引用类型(reference type)，区别于JavaScript的原始类型。因此对象的值都是引用(reference)，对象的比较均是引用的比较：当且仅当它们引用同一个基对象时，它们才相等。
+
+```javascript
+var a = [];
+var b = a;
+b[0] = 1;
+a[0];				// 1
+a === b;			// true
+```
+
+如果想得到一个对象的副本，就必须显式地复制对象的每个属性每个元素，如：
+
+```javascript
+var a = [1, 2, 3];
+var b = [];
+for (var i  = 0; i < a.length; i++) {
+	b[i] = a[i];
+}
+```
+
+如果要比较两个单独的对象，就必须比较它的每一个属性。
+
+##　3.8 类型转换
+JavaScript中的取值是非常灵活的。当JavaScript期望使用一个布尔值时，可以提供任意类型，JavaScript会根据需要自动将其转换为布尔值。对于字符串和数字同样如此。如：
+
+```javascript
+10 + " objects";		// "10 objects"
+"7" * "4";				// 28
+var n = 1 - "x";		// NaN
+n + " objects";			// "NaN objects"
+```
+
+下表说明了类型转换的方式。
+
+*值* | *字符串* | *数字* | *布尔值* | *对象*
+--- | --- | --- | --- | ---
+undefined | "undefined" | NaN | false | throws TypeError
+null | "null" | 0 | false | throws TypeError
+--- | --- | --- | --- | ---
+true | "true" | 1 |   | new Boolean(true)
+false | "false" | 0 |   | new Boolean(false)
