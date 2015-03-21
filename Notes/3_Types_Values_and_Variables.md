@@ -273,7 +273,177 @@ Infinity | "Infinity" |   | true | new Number(Infinity)
 {} | Ref 3.8.3 | Ref 3.8.3 | true |  
 [] | "" | 0 | true |  
 [9] | "9" | 9 | true |  
-['a'] join() | NaN | true |  
+['a'] | join() | NaN | true |  
 function(){} | Ref 3.8.3 | NaN | true |  
 
 ### 3.8.1 转换和相等性
+由于JavaScript可以做灵活的转换，运算符`==`也是灵活多变的。如：
+```javascript
+null == undefined; 		// true
+"0" == 0;				// true	 to number
+0 == false;				// true  to number
+"0" == false;			// true  to number
+````
+
+一个值转换为另一个值并不意味着两个值相等。如，在期望用布尔值的地方使用了undefined，它将会转换为false，但这并不意味着`undefined == false`。if语句将undefined转换为false，但是`==`从不试图将其操作数转换为布尔值。
+
+### 3.8.2 显式类型转换
+尽管JavaScript可以做许多类型转换，显式转换还是需要的，或者为了使代码变得清晰易读。做显式转换的简单方法就是使用Boolean()、Number()、String()、Object()函数，当不使用new操作符调用这些函数时，它们会作为类型转换函数被调用。除null和undefined类型外，都有toString()方法，它与String()方法的返回结果一致。
+
+```javascript
+x + '';		// String(x)
++x;			// Number(x)
+!!x;		// Boolean(x)
+```
+
+JavaScript中还提供了专门的函数和方法用来做更加精确的数字到字符串(number to string)和字符串到数字(string to number)的转换。如：
+
+```javascript
+var n = 17;
+var binary_string = n.toString(2);	// "10001"
+var octal_string = n.toString(8);	// "21"
+var hex_string = n.toString(16);	// "11"
+
+var m = 123456.789;
+n.toFixed(0);				// "123457"
+n.toFixed(2);				// "123456.79"
+n.toFixed(5);				// "123456.78900"
+n.toExponential(1);			// "1.2e+5"
+n.toExponential(3);			// "1.235e+5"
+n.toPrecision(4);			// "1.235e+5"
+n.toPrecision(7);			// "123456.8"
+n.toPrecision(10);			// "123456.7890"
+```
+
+Number类的toFixed()函数固定小数点后的位数将数字转换为字符串。toExponential()指定小数点后的位数，以指数形式返回将数字转换为字符串。toPrecision()函数指定有效数字的位数，将数字转换为字符串。
+
+通过Number()转换函数传入一个字符串，试图将其转换为一个整数或者浮点数直接量，只能基于十进制进行转换，并且不能出现非法的字符。parseInt()和parseFloat()函数更加灵活，前者解析整数，后者解析整数和浮点值。如果字符串前缀是0x或者0X，parseInt()将其解释为十六进制数。二者试图解释更多的数值字符，并忽略后面的内容。如：
+
+```javascript
+var n1 = new Number("12.1");
+n1.valueOf();				// 12.1
+var n2 = new Number("12abc");
+n2.valueOf();				// NaN
+
+parseInt("3 blind mice");	// 3
+parseFloat(" 3.14 meters");	// 3.14
+parseInt("-12.34");			// -12
+parseInt("0xff");			// 255
+parseInt("0XFF");			// 255
+parseInt("-0xFF");			// -255
+parseFloat(".1");			// 0.1
+parseInt("0.1");			// 0
+parseInt(".1");				// NaN
+parseInt("$73.23");			// NaN
+
+parseInt("11", 2);			// 3
+parseInt("ff", 16);			// 255
+parseInt("zz", 36);			// 1295
+parseInt("077", 8);			// 63
+parseInt("077", 10);		// 77
+```
+
+### 3.8.3 对象转换为原始值
+对象到布尔值的转换非常简单，所有对象都转换为true。
+
+对象到字符串(object to string)或者对象到数字(object to number)的转换是通过调用待转换对象的方法来实现的。但JavaScript中有两种不同的方法来执行转换。第一个方法就是toString()方法，它的作用是返回一个反映这个对象的字符串。然后默认的toString()方法不会返回一个想要的值。
+
+```javascript
+({x: 1}).toString();		// "[object Object]"
+([1, 2]).toString();		// "1,2"
+(function(x) { f(x); }).toString();	// "function (x) { f(x); }"
+/\d+/g.toString();			// "/\\d+/g"
+new Date().toString();		// "Sat Mar 21 2015 22:23:35 GMT+0800 (中国标准时间)"
+```
+
+另一个转换对象的函数是valueOf()。如果存在任意原始值，它就默认将对象转换为表示它的原始值。对象是复合值，而且大多数对象无法真正表示为一个原始值，因此默认的valueOf()方法简单地返回对象本身，而不是返回一个原始值。如：
+```javascript
+({x: 1, y: 2}).valueOf();	// Object {x: 1, y: 2}
+([1, 2]).valueOf();			// [1, 2]
+(function(x) { f(x); }).valueOf();	// function (x) { f(x); }
+/\d+/g.valueOf();			// /\\d+/g
+new Date().valueOf();		// 1426948242785
+```
+
+JavaScript中对象到字符串的转换经过了如下步骤：
+* 如果对象具有toString()方法，则调用这个方法。如果它返回一个原始值，JavaScript将这个值转换为字符串(如果本身不是字符串的话)，并返回这个字符串结果。
+* 如果对象没有toString()方法，或者这个方法并不返回一个原始值，那么JavaScript会调用valueOf()方法。如果存在这个方法，则JavaScript调用它。如果返回值是原始值，JavaScript将这个值转换为字符串(如果本身不是字符串的话)，并返回这个字符串结果。
+* 否则，JavaScript无法从toString()或valueOf()方法获得一个原始值，因此会抛出错误异常。
+
+在对象转换为数字的过程中，JavaScript做了同样的事情，不过它先尝试valueOf()方法而已。
+
+JavaScript中的`+`运算符可以进行数学加法和字符串连接操作。如果它的一个操作数是对象，则JavaScript将使用特殊的方法将对象转换为原始值，而不是使用其他算术运算符的方法执行对象到数字的转换。`==`运算符类似。
+
+`+`和`==`应用的对象到原始值的转换包含日期对象的一种特殊情形。日期类定义了有意义的向字符串和数字类型的转换。对于所有非日期的对象来说，对象到原始值的转换基本上是对象到数字的转换，日期则使用对象到字符串的转换模式。然而，日期类的valueOf()和toString()返回的原始值将被直接使用，而不会被强制转换为数字或字符串。
+
+关系运算符也要求做对象到原始值的转换，除日期类对象外，首先尝试调用valueOf()，然后调用toString()。不管得到的原始值是否直接使用，不会进一步被转换为数字或者字符串。
+
+其他运算符对特定类型的转换都明确，而且对日期类型也没有特殊情况，如：
+```javascript
+var now = new Date();
+typeof(now + 1);			// string
+typeof(now - 1);			// number
+now == now.toString();		// true
+now > (now - 1);			// true
+```
+
+## 3.9 变量声明
+在JavaScript中，使用一个变量之前就先声明。变量声明使用var关键字。如：
+
+```javascript
+var i;
+var sum;
+var name, address;
+var message = "furzoom";
+```
+
+如果在声明变量时没有指定初始值，那么它的值就是undefined。
+
+还可以这样：
+
+```javascript
+for (var i = 0; i < 10; i++) { console.log(i); }
+```
+
+使用var语句重复声明变量是合法且无害的。如果使用没有声明的变量将会报错。
+
+## 3.10 变量作用域
+一个变量的作用域(scope)是程序源代码中定义这个变量的区域。全局变量拥有全局作用域，在JavaScript代码中的任何地方都是有意义的。然而在函数内声明的变量只在函数体内有定义。它们是局部变量。在函数体内，局部变量的优先级高于同名的全局变量。如果函数内声明的一个局部变量或者函数参数中带有的变量和全局变量重名，那全局变量就被局部变量所遮盖。
+
+```javascript
+var scope = "global";
+function checkscope() {
+	var scope = "local";
+	return scope;
+}
+checkscope();				// "local"
+```
+全局的变量声明可以不使用var关键字，局部变量必须使用var进行变量的声明。
+
+### 3.10.1 函数作用域和声明提前
+JavaScript中没有块级作用域，JavaScript中使用函数作用域(function scope)。变量在声明它们的函数体以及这个函数体嵌套的任意函数体内都是有定义的。
+
+在函数体内，变量在声明之前可以使用它。JavaScript的这个特性被非正式的称为声明提前(hoisting)，即JavaScript函数里声明的所有变量都被提前至函数体的顶部。如：
+
+```javascript
+var scope = "global";
+function f() {
+	console.log(scope);		// undefined
+	var scope = "local";
+	console.log(scope);		// local
+}
+```
+
+上述代码与下面的代码是等价的。
+
+```javascript
+var scope = "global";
+function f() {
+	var scope;
+	console.log(scope);		// undefined
+	scope = "local";
+	console.log(scope);		// local
+}
+```
+
+### 3.10.2 作为属性的变量
