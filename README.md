@@ -42,3 +42,9 @@ int main(int argc, char *argv[]) // C
 ```javascript
 var get = function(e) { return document.getElementById(e); } // javascript
 ```
+
+header1 | header2 | header3
+--- | --- | ---
+row1 | row1 | row1
+row2 | row2 | row2
+row3 | row3 | row3
