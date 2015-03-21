@@ -251,10 +251,29 @@ n + " objects";			// "NaN objects"
 
 下表说明了类型转换的方式。
 
-*值* | *字符串* | *数字* | *布尔值* | *对象*
+值 | 字符串 | 数字 | 布尔值 | 对象
 --- | --- | --- | --- | ---
 undefined | "undefined" | NaN | false | throws TypeError
 null | "null" | 0 | false | throws TypeError
 --- | --- | --- | --- | ---
 true | "true" | 1 |   | new Boolean(true)
 false | "false" | 0 |   | new Boolean(false)
+--- | --- | --- | --- | ---
+"" |   | 0 | false | new String("")
+"1.2" |   | 1.2 | true | new String("1.2")
+"one" |   | NaN | true | new String("one")
+--- | --- | --- | --- | ---
+0 | "0" |   | false | new Number(0)
+-0 | "0" |   | false | new Number(-0)
+NaN | "NaN" |   | false | new Number(NaN)
+Infinity | "Infinity" |   | true | new Number(Infinity)
+-Infinity | "-Infinity" |   | true | new Number(-Infinity)
+1 | "1" |   | true | new Number(1)
+--- | --- | --- | --- | ---
+{} | Ref 3.8.3 | Ref 3.8.3 | true |  
+[] | "" | 0 | true |  
+[9] | "9" | 9 | true |  
+['a'] join() | NaN | true |  
+function(){} | Ref 3.8.3 | NaN | true |  
+
+### 3.8.1 转换和相等性
