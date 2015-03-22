@@ -447,3 +447,24 @@ function f() {
 ```
 
 ### 3.10.2 作为属性的变量
+当声明JavaScript的全局变量时，实际上是定义了全局对象的一个属性。使用var声明的全局变量是不能通过delete删除的。JavaScript可以允许使用this关键字来引用对象。如：
+
+```javascript
+var truevar = 1;
+fakevar = 2;
+this.fakevar2 = 3;
+delete truevar; 		// false
+delete fakevar;			// true
+delete this.fakevar2;	// true
+
+var foo = function() { 
+	var truevar = 2;
+	console.log(truevar);		// 2
+	console.log(this.truevar); 	// 1
+}
+```
+
+### 3.10.3 作用域链
+JavaScript是基于词法作用域的语言，全局变量在程序中始终是有定义的。局部变更在声明它的函数体内以及其嵌套的函数内始终是有定义的。每一段JavaScript代码都有一个与之凑聚的作用域链(scope chain)。这个作用域链是一个对象列表或者链表，这组对象定义了这段代码作用域中的变量。
+
+在JavaScrip的最顶层代码中，作用域链由一个全局对象组成。在不包含嵌套的函数体内，作用域链上有两个对象，第一个是定义函数参数和局部变量的对象，第二个是全局对象。
