@@ -1,5 +1,5 @@
 # 类型，值和变量
-
+[
 JavaScript中数据类型分为两类：
 * 原始类型(primitive type)
 * 对象类型(object type)
@@ -468,3 +468,5 @@ var foo = function() {
 JavaScript是基于词法作用域的语言，全局变量在程序中始终是有定义的。局部变更在声明它的函数体内以及其嵌套的函数内始终是有定义的。每一段JavaScript代码都有一个与之凑聚的作用域链(scope chain)。这个作用域链是一个对象列表或者链表，这组对象定义了这段代码作用域中的变量。
 
 在JavaScrip的最顶层代码中，作用域链由一个全局对象组成。在不包含嵌套的函数体内，作用域链上有两个对象，第一个是定义函数参数和局部变量的对象，第二个是全局对象。
+
+Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")

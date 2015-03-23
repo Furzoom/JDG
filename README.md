@@ -1,6 +1,8 @@
 # JDG
 Some useful sample codes in [javascript](http://furzoom.com/javascript/ "javascript")!
 
+Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
+
 Big title
 ==
 Middle title

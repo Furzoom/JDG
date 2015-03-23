@@ -83,3 +83,5 @@ JavaScript定义了一些全局变量和函数，就避免将其作为变量名�
 		URIError			Function		NaN					ReferenceError		decodeURIComponent
 ## 2.5 可选的分号
 JavaScript使用分号(;)将语句分隔开，如果语句独占一行，也可以省略末尾分号。最好**明确**使用分号标识语句结束。
+
+Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
