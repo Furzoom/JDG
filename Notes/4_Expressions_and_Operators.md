@@ -106,7 +106,11 @@ JavaScript中的运算符用于算术表达式、比较表达式、逻辑表达�
 * / % | 乘 除 求余 | L | 2 | num,num->num
 + -<br />+ | 加 减<br />字符串连接 | L<br />L | 2<br />2 | num,num->num<br />str,str->str
 <<<br />>><br />>>> | 左移位<br />有符号右移位<br />无符号右移位 | L<br />L<br />L | 2<br />2<br />2 | int,int-int<br />int,int->int<br />int,int->int
-
+< <= > >=<br />< <= > >=<br />instanceof<br />in | 比较数字顺序<br />比较在字母表中的顺序<br />测试对象类<br />测试属性是否存在 | L<br />L<br />L<br />L | 2<br />2<br />2<br />2 | num,num->bool<br />str,str->bool<br />obj,func->bool<br />str,obj->bool
+==<br />!=<br />===<br />!== | 判断相等<br />判断不等<br />判断恒等<br />判断非恒等 | L<br />L<br />L<br />L | 2<br />2<br />2<br />2 | any,any->bool<br />any,any->bool<br />any,any->bool<br />any,any->bool
+& | 按位与 | L | 2 | int,int->int
+^ | 按位异或 | L | 2 | int,int->int
+\| | 按位或 | L | 2 | int,int->int
 
 
 
