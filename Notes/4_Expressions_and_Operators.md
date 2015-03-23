@@ -111,8 +111,11 @@ JavaScript中的运算符用于算术表达式、比较表达式、逻辑表达�
 & | 按位与 | L | 2 | int,int->int
 ^ | 按位异或 | L | 2 | int,int->int
 \| | 按位或 | L | 2 | int,int->int
-
-
+&& | 逻辑与 | L | 2 | any,any-any
+|| | 逻辑或 | L | 2 | any,any-any
+?: | 条件运算符 | R | 3 | bool,any,any->any
+=<br />*= /= %= += -= &= ^= |= <<= >>= >>>= | 赋值<br />运算并赋值 | R<br />R | 2<br />2 | lval,any->any<br />lval,any->any
+, | 逗号 | L | 2 | any,any->any
 
 
 Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
