@@ -48,7 +48,7 @@ q.x = 2.3; q.y = -1.2;		// q has the same properties as p
 var square = function(x) { return x * x; }
 ```
 
-# 4.4 属性访问表达式
+## 4.4 属性访问表达式
 
 属性访问表达式运算得到一个对象属性或者一个数组元素的值。在JavaScript中有两种方法来访问属性：
 
@@ -102,7 +102,11 @@ JavaScript中的运算符用于算术表达式、比较表达式、逻辑表达�
 
 运算符 | 操作 | A | N | 类型
 --- | --- | --- | --- | ---
-++<br />--<br />-<br />+<br />~<br />!<br />delete | 前/后增量<br />前/后减量<br />求反<br />转换为数字<br />按位求反<br />逻辑非<br />删除属性 | R<br />R<br />R<br />R<br />R<br />R<br />R<br /> | 1<br />1<br />1<br />1<br />1<br />1<br />1<br /> | lval->num<br />lval->num<br />num->num<br />num->num<br />int->int<br />bool->bool<br />lval->lval
+++<br />--<br />-<br />+<br />~<br />!<br />delete<br />typeof<br />void | 前/后增量<br />前/后减量<br />求反<br />转换为数字<br />按位求反<br />逻辑非<br />删除属性<br />检测操作数类型<br />返回undefined值 | R<br />R<br />R<br />R<br />R<br />R<br />R<br />R<br />R | 1<br />1<br />1<br />1<br />1<br />1<br />1<br />1<br />1 | lval->num<br />lval->num<br />num->num<br />num->num<br />int->int<br />bool->bool<br />lval->lval<br />any->str<br />any->undef
+* / % | 乘 除 求余 | L | 2 | num,num->num
++ -<br />+ | 加 减<br />字符串连接 | L<br />L | 2<br />2 | num,num->num<br />str,str->str
+<<<br />>><br />>>> | 左移位<br />有符号右移位<br />无符号右移位 | L<br />L<br />L | 2<br />2<br />2 | int,int-int<br />int,int->int<br />int,int->int
+
 
 
 
