@@ -392,7 +392,123 @@ if (a == b) stop();
 `!`运算符是一元运算符，它将操作数的布尔值求反。它只返回false或者true。它会将操作数转换为布尔值，再将其求反。
 
 ## 4.11 赋值表达式
-JavaScript使用`=`运算符来给变量或者属性赋值，
+JavaScript使用`=`运算符来给变量或者属性赋值。如：
+
+```javascript
+i = 0;
+o.x = 1;
+```
+
+`=`运算符希望它的左操作数是一个左值：一个变量或者对象属性。它的右操作数可以是任意类型的任意值。赋值表达式的值就是右操作数的值。赋值表达式的副作用是，右操作数的赋值给左侧的变量或者对象属性。
+
+**带操作的赋值运算**
+
+除了常规的赋值运算`=`之外，JavaScript还支持许多其他的赋值运算符，这些运算符将赋值运算符连接起来，提供一种更为快捷的运算方式。如：
+
+```javascript
+total += sales_tax;
+total = total + sales_tax;
+```
+
+上述两行代码是等价的。这一类的运算符有如下：
+
+运算符 | 示例 | 等价于
+--- | --- | ---
++= | a += b | a = a + b
+-= | a -= b | a = a - b
+*= | a *= b | a = a * b
+/= | a /= b | a = a / b
+%= | a %= b | a = a % b
+<<= | a <<= b | a = a << b
+>>= | a >>= b | a = a >> b
+>>>= | a >>>= b | a = a >>> b
+&= | a &= b | a = a & b
+|= | a |= b | a = a | b
+^= | a ^= b | a = a ^ b
+
+## 4.12 表达式计算
+JavaScript可以解释运行由JavaScript源代码组成的字符串，并产生一个值。JavaScript通过全局函数eval()来完成这个工作：
+
+```javascript
+eval("2 + 3");		// 5
+```
+
+动态执行源代码中的字符串是一种强大的语言特性，几乎没有必要在实际中应用。
+
+### 4.12.1 eval()
+eval()只有一个参数。如果传入的参数不是字符串，它直接返回这个参数。如果参数是字符串，它会把字符串当成JavaScript代码进行编译(parse)，如果编译失败则抛出一个语法错误异常。如果编译成功，则执行这段代码，并返回字符串中最后一个表达式或语句的值。如果最后一个表达式或语句没有返回值，则返回undefined。
+
+关于eval()最重要的是，它使用了调用它的变量作用域环境。使用eval()时需要注意作用域的影响。
+
+### 4.12.2 全局eval()
+eval()具有改变局部变量的能力。如果脚本定义了eval()的一个别名，且用另一个名称调用它，eval()会将其字符串当成顶层的全局代码来执行。如：
+
+```javascript
+var geval = eval;
+var x = "global", y = "global";
+function f() {
+	var x = "local";
+	eval("x += 'changed';");
+	return x;
+}
+function g() {
+	var y = "local";
+	geval("y += 'changed';");
+	return y;
+}
+console.log(f(), x);
+console.log(g(), y);
+```
+
+### 4.12.3 严格eval()
+ECMAScript 5严格模式对eval()函数的行为有更多的限制，在严格模式下，eval()是私有上下文环境中的局部eval。也就是说，在严格模式下，eval执行的代码段可以查询或更改局部变更，但不能在局部作用域中定义新的变量和函数。
+
+严格模式将eval列为保留字，不能用别名覆盖eval()函数。
+
+## 4.13 其他运算符
+### 4.13.1 条件运算符(?:)
+条件运算符是JavaScript中唯一的一个三元运算符。条件运算符的操作数可以是任意类型的。第一个操作数当成布尔值，如果它是真值，那么将计算第二个操作数，并返回其计算结果。否则，如果第一个操作数是假值，那么将计算第三个操作数，并返回其计算结果。if语句可以带来同样的效果，如下两段代码是等价的：
+
+```javascript
+greeting = "hello " + (username ? username : "there");
+```
+
+```javascript
+greeting = "hello ";
+if (username)
+	greeting += username;
+else
+	greeting += "there";
+```
+
+### 4.13.2 typeof运算符
+typeof是一元运算符，放在其单个操作数的前面，操作数可以是任意类型。返回值为表示操作数类型的一个字符串。如下表：
+
+x | typeof x
+--- | ---
+undefined | "undefined"
+null | "object"
+true | "boolean"
+false | "boolean"
+任意数字或NaN | "number"
+任意字符串 | "string"
+任意函数 | "function"
+任意内置对象 | "object"
+任意宿主对象 | 由编译器各自实现的字符串
+
+typeof最常用的用法是写在表达式中，如：
+
+```javascript
+(typeof value == "string") ? "'" + value + "'" : value
+```
+
+typeof运算符可以带上圆括号，如：
+
+```javascript
+typeof(f)
+```
+
+当操作数是null的时候，typeof将返回"object"。
 
 
 Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
