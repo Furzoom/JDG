@@ -423,7 +423,7 @@ total = total + sales_tax;
 >>= | a >>= b | a = a >> b
 >>>= | a >>>= b | a = a >>> b
 &= | a &= b | a = a & b
-|= | a |= b | a = a | b
+\|= | a \|= b | a = a \| b
 ^= | a ^= b | a = a ^ b
 
 ## 4.12 表达式计算
@@ -456,8 +456,8 @@ function g() {
 	geval("y += 'changed';");
 	return y;
 }
-console.log(f(), x);
-console.log(g(), y);
+console.log(f(), x);	// localchanged global
+console.log(g(), y);	// local globalchanged
 ```
 
 ### 4.12.3 严格eval()
@@ -508,7 +508,51 @@ typeof运算符可以带上圆括号，如：
 typeof(f)
 ```
 
-当操作数是null的时候，typeof将返回"object"。
+当操作数是null的时候，typeof将返回"object"。对于宿主对象来说，typeof有可能并不返回"object"，而返回其他字符串。但一般情况下，客户端宿主都返回"object"。
 
+由于对象和数组的typeof运算符结果是"object"而不是"function"，因此它对于区分对象和其他原始值来说是十分有帮助的。如果想区分对象的类，则需要使用其他的手段，如instanceof运算符等。
+
+### 4.13.3 delete运算符
+delete是一元运算符，它用来删除对象属性或者数组元素。如：
+
+```javascript
+var o = { x: 1, y: 2};
+delete o.x;
+"x" in o;				// false
+
+var a = [5, 6, 7];
+2 in a;					// true
+delete a[2];
+2 in a;					// false
+a.length;				// 3 [5, 6, undefined]
+```
+
+删除属性或者删除数组元素不仅仅是设置了一个undefined的值，当删除一个属性时，这个属性将一再存在。读取一个不存在的属性将返回undefined，但可以通过in运算符来检测这个属性是否在对象中存在。(**不理解**)
+
+delete希望它的操作数是一个左值，如果它不是左值，那么delete将不进行任何操作，同时返回true。否则，delete将试图删除这个指定的左值。如果删除成功，delete将返回true。然而并不是所有属性都可以删除，一些内置核心的客户端属性是不能删除的，用户通过var语句声明的变量不能删除。同样，通过function语句定义的函数和函数参数也不能删除。如：
+
+```javascript
+var o = {x: 1, y: 2};
+delete o.x;
+typeof o.x;				// "undefined"
+delete o.x;				// true
+delete o;				// false
+
+delete 1;				// true
+this.x = 1;				
+delete x;				// true
+
+x;						// x is not defined
+```
+
+### 4.13.4 void运算符
+void是一元运算符，它出现在操作数之前，操作数可以是做任意类型。操作数会照常计算，但忽略计算结果并返回undefined。在操作数具有副作用时使用void来让程序更具有语义。
+
+### 4.13.5 逗号运算符(,)
+逗号运算符是二元运算符，它的操作数可以是任意类型。它首先计算左操作数，然后计算右操作数，最后返回右操作数的值，如：
+
+```javascript
+a = 1, b = 2;		// 表达式结果为2
+```
 
 Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
