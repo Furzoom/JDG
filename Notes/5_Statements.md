@@ -139,9 +139,101 @@ else {
 ```
 
 ### 5.4.3 switch
-if语句在程序执行过程中创建一条分支，并且可以使用else if来处理多条分支。然后，当所有的分支都依赖于同一个表达式的值时，else if并不是最佳解决方案。重复多次计算if语句中的条件表达式是非常浪费的做法。
+if语句在程序执行过程中创建一条分支，并且可以使用else if来处理多条分支。然后，当所有的分支都依赖于同一个表达式的值时，else if并不是最佳解决方案。重复多次计算if语句中的条件表达式是非常浪费的做法。switch语句示例如下：
+
+```javascript
+switch(n) {
+	case 1:		// if n === 1
+		// statement 1
+		break;
+	case 2:		// if n === 2
+		// statement 2
+		break;
+	case 3:		// if n === 3
+		// statement 3
+		break;
+	default:	// if n === 4
+		// default statement
+		break;
+}
+```
+
+在swtich语句中，case只是指明了要执行的代码起点，但并没有指明终点，如果没有break语句，将一直执行到switch代码块结尾。因此，常配合使用break语句。case后可以跟任意表达式。switch语句首先计算switch关键字后的表达式，然后按照从上到下的顺序计算case后面的表达式，直到与switch后面的表达值相等为止，需要使用`===`进行判断。因此，匹配过程中不会有类型转换。如果没有case语句与之相等，则执行`default:`标签后的语句。如果没有`default:`语句，则跳出switch代码块。
+
 ## 5.5 循环
+循环语句(Looping statement)就是程序路径的一个回路，可以让一部分代码重复执行。JavaScript中有4种循环语句：while、do/while、for、for/in。
+
+### 5.5.1 while
+while语句的语法如下：
+
+```javascript
+while (expression)
+	statement
+```
+
+在执行while语句之前，Javascript解释器首先计算expression的值。如果它为假值，程序跳出循环体，转而执行程序的下一条语句。否则，执行statement语句，直到expression的值为假。
+
+通常来说，不想让Javascript反复执行同一操作。在每次循环中都会有一个或多个变量随着循环的迭代而改变。如：
+
+```javascript
+var count = 0;
+while (count < 10) {
+	console.log(count);
+	count++;
+}
+```
+
+### 5.5.2 do/while
+do/while循环和while循环非常相似，只不过它是在循环的尾部而不是顶部检测循环表达式，这意味着循环至少会执行一次。do/while循环的语法如下：
+
+```javascript
+do
+	statement
+while (expression);
+```
+
+do/while循环要求必须使用关键字do来标识循环的开始，用while来标识循环的结尾并进行循环条件判断。其次，do/while循环是用分号结尾的。
+### 5.5.3 for
+for循环语句的语法如下：
+
+```javascript
+for (initialize; test; increment)
+	statement
+```
+
+initialize、test、increment三个表达式用分号间隔，分别负责初始化操作、循环条件判断、计算器变量的更新。上述结构与下面的while循环是等价的：
+
+```javascript
+initialize;
+while (test) {
+	statement
+	increment;
+}
+```
+
+### 5.5.4 for/in
+for/in语句也使用for关键字，但它和常规的for循环完全不同。其语法如下：
+
+```javascript
+for (variable in object)
+	statement
+}
+```
+
+variable通常是一个变量名，也可以是一个可以产生左值的表达式或者一个通过var语句声明的变量，总之必须是一个适用于赋值表达式左侧的值。object是一个表达式，这个表达式的计算结果是一个对象。同样，statement是一个语句或语句块，它构成循环的主体。
+
+如，使用for/in遍历数组元素：
+
+```javascript
+for (var p in o)
+	console.log(o.[p]);
+```
+
+在执行for/in语句的过程中，Javascript解释器首先计算object表达式。如果表达式是null或者undefined，Javascript解释器会抛出一个异常。如果表达式等于一个原始值，这个原始值将会转换为与之对应的包装对象。否则，expression本身已经是对象了。Javascript会依次枚举对象的属性来执行循环。然而在每次循环之前，Javascript都会先计算variable表达式的值，并将属性名赋值给它。
+
+事实上，for/in循环并不会遍历对象的所有属性。只有“可枚举”(enumerable)的属性才会遍历到。由Javascript语言核心所定义的内置方法就不是“可枚举”的。除了内置方法外，还有很多内置对象的属性也是不可枚举的。而代码中定义的所有属性和方法都是可枚举的。对象可以继承其他对象的属性，那些继承的自定义属性也可以使用for/in枚举出来。
 ## 5.6 跳转
+
 ## 5.7 其他语句类型
 ## 5.8 小结
 
