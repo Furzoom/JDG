@@ -233,8 +233,186 @@ for (var p in o)
 
 事实上，for/in循环并不会遍历对象的所有属性。只有“可枚举”(enumerable)的属性才会遍历到。由Javascript语言核心所定义的内置方法就不是“可枚举”的。除了内置方法外，还有很多内置对象的属性也是不可枚举的。而代码中定义的所有属性和方法都是可枚举的。对象可以继承其他对象的属性，那些继承的自定义属性也可以使用for/in枚举出来。
 ## 5.6 跳转
+Javascript中的跳转语句(jump statement)可以使执行从一个位置跳转到另一个位置。
+
+### 5.6.1 标签语句
+语句是可以添加标签的，标签是由语句前的标识符和冒号组成的：
+
+```javascript
+identifier:statement
+```
+
+通过给语句定义标签，就可以在程序的任何地方通过标签名引用这条语句。只有在给语句块定义标签时它才更有用，比如循环和条件判断语句。break和continue是Javascript中唯一可以使用语句标签的语句。带有标签的语句可以有标签，标签可以嵌套。
+
+### 5.6.2 break语句
+单独使用break语句的作用是立即退出最内层循环或switch语句。语法为：
+
+```javascript
+break;
+```
+
+由于它能够使循环和switch语句退出，因此这种形式的break只有出现在这类语句中都是合法的。Javascript中同样允许在break后跟标签，如：
+
+```javascript
+break labelname;
+```
+
+当break和标签一块使用时，程序将跳转到这个标签所标识的语句块的结束，或者直接编目这个闭合语句块的执行。当没有任何闭合语句块指定了break所用的标签，这时会产生一个语法错误。如：
+
+```javascript
+var a = 5;
+label: if ( a != 0 ) {
+	console.log(a);
+	break label;			
+	console.log("break");	// not executed
+}
+// break jump here
+```
+
+无论是否有标签，break都无法越过函数的边界。
+
+### 5.6.3 continue语句
+continue语句和break语句非常相似，但它不是退出循环，而是转而执行下一次循环。语句如下：
+
+```javascript
+continue;
+continue lobelname;
+```
+
+不管continue语句带不带标签，它只能在循环体内使用。在其他地方使用将会报语法错误。在不同的循环中，continue的行为也有所不同：
+* 在while循环中，在循环开始外指定的expression会重复检测，如果检测结果为true，循环体会从头开始执行。
+* 在wo/while循环中，程序的执行直接跳转到循环结尾处，这时会重新判断循环条件，之后才会继续下一次循环。
+* 在for循环中，首先计算自增表达式，然后再次检测test表达式，用以判断更不执行循环体。
+* 在for/in循环中，循环开始遍历下一个属性名，这个属性名赋名了指定的变量。
+
+### 5.6.4 return语句
+函数调用是一种表达式，而所有表达式都有值。函数中的return语句指定了函数表达式的值。语法如下：
+
+```javascript
+return expression;
+```
+
+return语句只能在函数体内出现，如果不是话会报语法错误。当执行到return语句的时候，函数终止执行，并返回expression的值给调用程序。如果没有return语句，则函数调用公依次执行函数体内的每一条语句直到函数结束，最后返回调用程序。这时函数表达式的结果是undefined。return可以单独使用而不带expression，这样的话函数也会向调用程序返回undefined。
+
+### 5.6.5 throw语句
+所谓异常(exception)是当发生了某种异常情况或错误时产生的一个信号。抛出异常，就是用信号通知发生了错误或异常状况。捕获异常是指处理这个信号，即采取必要的手段从异常中恢复。在Javascript中当产生运行时错误或者程序使用throw语句时就会显示地抛出异常。使用try/catch/finally语句可以捕获异常。throw语法如下：
+
+```javascript
+throw expression;
+```
+
+expression的值可以是任意类型的。可以抛出一个代表错误码的数字，或者包含可读的错误消息的字符串。Javascript解释器抛出异常时通常采用Error类型和其子类型，当然也可以使用它们。一个Error对象有一个name属性表示错误类型，一个message属性用来存放传递给构造函数的字符串。如：
+
+```javascript
+function factorial(x) {
+	if (x < 0) throw new Error("x must not be negative");
+	for (var f = 1; x > 1; f *= x, x--) /* empty */ ;
+	return f;
+}
+```
+
+当抛出异常时，Javascript解释器会立即停止当前正在执行的逻辑，并跳转到就近的异常处理程序。如果抛出异常的代码块没有一条相关联的catch语句，解释器会检查更高层次的闭合代码块，看它是否有相关联的异常处理程序。以此类推，直到找到异常处理程序为止。如果最后还没有找到，Javascript将其作为程序错误来处理，并报告给用户。
+
+### 5.6.6 try/catch/finally语句
+try/catch/finally语句是Javascript的异常处理机制。其中try从句定义了需要处理的异常所在的代码快。catch从句跟随在try从句后，当try块内警示牌发生了异常时，调用catch内的代码逻辑。catch从句后跟随finally块，后者中旋转清理代码，不管try块中是否产生异常，finally块内的逻辑部是会执行。尽管catch和finally都是可选的，但try从句需要至少二者之一与这组成完整的语句。三者语句块都需要使用花括号括起来。
+
+```javascript
+try {
+
+}
+catch (3) {
+
+}
+finally {
+
+}
+```
+
+如：
+
+```javascript
+try {
+	var n = Number(prompt("input a number", ''));
+	var f = factorial(n);
+	alert(n + '! = ' + f);
+}
+catch (e) {
+	alert(e);
+}
+```
+
+不管try语句块中的执行完成了多少，只要try语句中有一部分代码执行了，finally从句就会执行。
+
+当由于return、continue、break语句使得解释器跳出try语句块时，解释器在执行新的目标代码之前，先执行finally块中的逻辑。
+
+如果在try中产生了异常，而且存在一条与之相关的catch从句来处理这个异常，解释器首先执行catch中的逻辑，然后执行finally中的逻辑。如果不存在处理异常的局部catch从句，解释器首先执行finally中的逻辑，然后向上传播这个异常，直到找到能处理这个异常的catch从句。
+
+如果finally块使用了return、continue、break或throw语句使程序发生跳转，或者通过调用抛出异常的方法改变了程序执行流程，不管这个跳使程序挂起还是继续执行，解释器都会将其忽略。
 
 ## 5.7 其他语句类型
-## 5.8 小结
+Javascritp中剩余的三种语句为with、debugger和use strict。
+
+### 5.7.1 with语句
+with语句用于临时扩展作用域链，它的语法如下：
+
+```javascript
+with (object)
+statement
+```
+
+这条语句将object添加到作用域链的头部，然后执行statement，最后把作用域链恢复到原始状态。在严格模式中是禁止使用with语句的，在非严格模式下也不推荐使用with语句。如：
+
+```javascript
+with (document.forms[0]) {
+	name.value = '';
+	address.value = '';
+	email.value = '';
+}
+```
+
+与下面的程序是等价的：
+
+```javascript
+var f = document.forms[0];
+f.name.value = '';
+f.address.value = '';
+f.email.value = '';
+```
+
+只有在查找标识符的时候才会乃至作用域链，创建新的变量的时候不使用它，如：
+
+```javascript
+with (o) x = 1;
+````
+
+如果对象o有一个属性x，那么这行代码给这个属性赋值为1，如果o中没有定义属性x，这段代码和不使用with语句的代码`x=1`一样。
+
+### 5.7.2 debugger语句
+debugger语句通常什么也不做。然而当调试程序并运行的时候，Javascritp解释器将会以调试模式运行。实际上，这条语句用来产生一个断点(breakpoint)，Javascritp代码的执行会停止在断点的位置，这时可以使用调试器输出变量的值、检查调用栈。
+
+### 5.7.3 "use strict"
+"use strict"是ECMAScript 5引入的一条指令，指令不是语句，"use script"指令和普通的语句之间有两个重要的区别：
+* 它不包含任何语言的关键字，指令仅仅是一个包含一个特殊字符串直接量的表达式(可以使用单引号或者双引号)，对于那些没有实现ECMAScript 5的Javascritp解释器来说，它只是一条没有副作用的表达式语句，它什么也不做。
+* 它只能出现在脚本代码的开始或者函数体的开始、任何实体语句之前。
+
+使用"use script"指令的目的是说明后续的代码将会解析为严格代码(strict code)。严格模式与非严格模式的主要区别如下：
+* 在严格模式中禁止使用with语句。
+* 在严格模式中，所有的变量都要先声明，如果给一个未声明的变量、函数、函数参数、catch从句参数或全局对象的属性赋值，将会抛出一个引用错误异常。
+* 在严格模式中，调用的函数(不是方法)中的一个this值是undefined。可以用这种方式来判断Javascritp实现的否支持严格模式：
+```javascript
+var hasStrictMode = (function(){ "use strict"; return this === undefined; });
+```
+* 在严格模式中，通过call()和apply()来调用函数时，其中的this值就是通过call()和apply()传入的第一个参数。
+* 在严格模式中，给只读属性赋值和给不可扩展的对象创建新成员都将抛出一个类型错误异常。
+* 在严格模式中，传入eval()的代码不能在调用程序所在上下文中声明变量或定义函数。相反，变量和函数的定义是在eval()创建的新作用域中，这个作用域在eval()返回时就弃用了。
+* 在严格模式中，函数里的arguments对象拥有传入参数值的副本。在非严格模式中，arguments对象具有"魔术般"的行为，arguments里的数组元素和函数参数都是指向同一个值的引用。
+* 在严格模式中，当delete运算符后跟随非法的标识符时，将会抛出一个语法错误异常。
+* 在严格模式中，试图删除一个不可配置的属性将抛出一个类型错误异常。
+* 在严格模式中，在一个对象直接量中定义两个或者多个同名属性将产生一个语法错误。
+* 在严格模式中，函数声明中存在两个或多个同名的参数将产生一个语法错误。
+* 在严格模式中，不允许使用八进制整数直接量。
+* 在严格模式中，标识符eval和arguments当做关键字。
+* 在严格模式中，限制对调用栈的检测。arguments.caller和arguments.callee都会抛出一个类型错误异常。
+
 
 Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
