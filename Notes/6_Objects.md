@@ -79,7 +79,162 @@ var o1 = Object.create({x: 1, y: 2});
 var o2 = Object.create(Object.prototype);
 ```
 
+要ECMAScript 3中可以使用下面的方法来模拟原型继承：
+
+```javascript
+function inherit(p) {
+	if (p === null) throw TypeError();
+	if (Object.create)
+		return Object.create(p);
+	var t = typeof p;
+	if (t !== "object" && t !== "function") throw TypeError();
+	function f() {};
+	f.prototype = p;
+	return new f();
+}
+```
+
 ## 6.2 属性的查询和设置
+可以通过点(.)或方括号([])运算符来获取属性的值。运算符左侧应当是一个表达式，它返回一个对象。对于点(.)来说，右侧必须是一个以属性名称命名的简单标识符。对于方括号来说([])，方括号内必须是一个计算结果为字符串的表达式，这个字符串就是属性的名字：
+
+```javascript
+var author = book.author;
+var name = author.surname;
+var title = book["main title"];
+```
+
+和查询属性值的写法一样，通过点和方括号也可以创建属性或给属性赋值：
+
+```javascript
+book.edition = 6;
+book["main title"] = "ECMAScript";
+```
+
+### 6.2.1 作为关联数组的对象
+上文提到，下面两个JavaScript表达式的值相同：
+
+```javascript
+object.property
+object["property"]
+```
+
+第一种语法使用点运算符和一个标识符，这和C、Java中访问一个结构体或对象的静态字段非常类似。第二种语法使用方括号和一个字符串，看起来更像数组，只是这个数组元素是通过字符串索引而不是数字索引。这种数组就是所说的关联数组(associative array)，也称作散列(hash)、映射或字典(dictionary)。JavaScript对象都是关联数组。使用方括号访问属性时更加灵活。
+
+### 6.2.2 继承
+JavaScript对象具有自有属性(own property)，也有一些属性是从原型对象继承而来的。假设要查询对象o的属性x，如果o中不存在x，那么将会在继续在o的原型对象中查询属性x。如果原型对象中也没有x，但这个原型对象也有原型，那么继续在这个原型对象的原型上执行查询，直到找到x或者查找到一个原型是null的对象为止。对象的原型构成了一个链，通过这个链可以实现属性的继承。如：
+
+```javascript
+var o = {};
+o.x = 1;
+var p = Object.create(o);
+p.y = 2;
+var q = Object.create(p);
+q.z = 3;
+q.x + q.y;					// 3
+```
+
+如果给对象o的属性x赋值，如果o中已经有属性x(这个属性不是继承来的)，那么这人赋值操作只改变这个已有属性x的值。如果o中不存在属性x，那么赋值操作给o添加一个新属性x。如果之前o继承的属性x，那么这个继承的属性就被新创建的同名属性覆盖了。
+
+属性赋值操作首先检查原型链，以此判定是否允许赋值操作。例如，如果o继承自一个只读属性x，那么赋值操作是不允许的。如果允许属性赋值操作，它也总是在原始对象上创建属性或对已有属性赋值，而不会去修改原型链。如：
+
+```javascript
+var unitcircle = {r: 1};
+var c = Object.create(unitcircle);
+c.x = 1; 
+c.y = 1;
+c.r = 2;
+unitcircle.r;							// 1
+```
+
+### 6.2.3 属性访问错误
+属性访问并不总是返回或设置一个值。查询一个不存在的属性并不会报错，如果在对象o自身的属性或继承中均未找到属性x，属性表达式o.x返回undefined。但是，如果对象不存在，那么试图查询这个不存在的对象的属性就会报错。null和undefined值都没有属性，因此查询这些值的属性会报错。如：
+
+```javascript
+book.subtitle;			// undefined
+book.subtitle.length;	// TypeError
+```
+
+当然给null和undefined设置属性也会报错。给其他值设置属性也不总是成功，有一些属性是只读的，只能重新赋值，有一些对象不允许新增属性，但让人意外的是，这些设置的失败操作不会报错：
+
+```javascript
+Object.prototype = 1;	// 赋值失败，但不报错
+```
+
+这是一个bug，在ECMAScript 5的严格模式中将会报错。在如下场景下给对象o设置属性p会失败：
+* o中的属性p是只读的；不能给只读属性重新赋值(可以对可配置的只读属性重新赋值)。
+* o中的属性p是继承属性，且它是只读的；不能通过同名自有属性覆盖只读的继承属性。
+* o中不存在自有属性p：o没有使用setter方法继承属性p，并且o的可扩展性是false。
+
+## 6.3 删除属性
+delete运算符可以删除对象的属性。它的操作数应当是一个属性访问表达式。让人感到意外的是，delete只是断开属性和宿主对象的联系，而不会去操作对象中的属性。delete运算符只能删除自有属性，不能删除继承属性(只能在定义这个属性的原型对象上删除它)。当delete表达式删除成功或没有任何副作用时(比如删除不存在的属性)，它返回true。如果delete后不是一个属性访问表达式，delete同样返回true。
+
+```javascript
+o = {x: 1};
+delete o.x;			// true
+delete o.x;			// true
+delete o.toString;	// true
+delete 1;			// true
+```
+
+delete不能删除那些可配置性为false的属性。某些内置对象的属性是不可配置的，如通过变量声明和函数声明创建的全局对象的属性。在严格模式中，删除一个不可配置的属性会报一个类型错误。当在非严格模式中删除全局对象的可配置属性时，可以省略对全局对象的引用，直接在delete操作符后跟随要删除的属性名：
+
+```javascript
+this.x = 1;
+delete x;			// true
+```
+
+然而在严格模式中，delete后跟随一个非法的操作数，则会报语法错误，必须显示指定对象及其属性：
+
+```javascript
+delete x;			// SyntaxError
+delete this.x;		// true
+```
+
+## 6.4 检测属性
+Javascript对象可以看作属性的集合，经常需要检测集合中成员的所属关系，判断某个属性是否存在于某个对象中。可以通过in运算符、hasOwnProperty()和propertyIsEnumerable()方法完成这个工作，甚至仅通过属性查询也可以做到这一点。
+
+in运算符的左侧是属性名(字符串)，右侧是对象。如果对象的自有属性或继承属性中包含这个属性则返回true。对象的hasOwnProperty()用来检测给定的名字是否是对象的自有属性。propertyIsEnumerable()是hasOwnProperty()的增加版，只有检测到是自有属性且这个属性的可枚举性为true时，它才返回true。如：
+
+```javascript
+var o = {x: 1};
+"x" in o;						// true
+"y" in o;						// false
+"toString" in o;				// true
+
+o.hasOwnProperty("x");			// true
+o.hasOwnProperty("y");			// false
+o.hasOwnProperty("toString");	// false
+
+var p = Object.create(o);
+p.y = 2;
+p.propertyIsEnumerable("x");	// false
+p.propertyIsEnumerable("y");	// true
+Object.prototype.propertyIsEnumerable("toString");	// false
+```
+
+更简洁的方式是使用`!==`运算符，如：
+
+```javascript
+var o = {x: 1};
+o.x !== undefined;				// true
+o.y !== undefined;				// false
+o.toString !== undefined;		// true
+```
+
+in运算符可以区分不存在的属性和存在但值为undefined的属性。如：
+
+```javascript
+var o = {x: undefined};
+o.x !== undefined;				// false
+o.y !== undefined;				// false
+"x" in o;						// true
+"y" in o;						// false
+delete o.x;						// true
+"x" in o;						// false
+```
+
+## 6.5 枚举属性
+
 
 
 Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
