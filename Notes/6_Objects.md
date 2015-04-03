@@ -234,6 +234,31 @@ delete o.x;						// true
 ```
 
 ## 6.5 枚举属性
+除了检测对象是否存在，还经常遍历对象的属性。for/in循环可以在循环体中遍历对象中所有可枚举的属性。有许多实用工具库给`Object.prototype`添加了新的方法或属性，这些方法和属性可以被所有对象继承并使用。然而在ECMAScript 5标准之前，这些新添加的方法是不能定义为不可枚举的，因此它们都可以在for/in循环中枚举出来。为避免这种情况需要使用如下的方式：
+
+```javascript
+for (p in o) {
+	if (!o.hasOwnProperty(p)) continue;
+}
+for (p in o) {
+	if (typeof o[p] === 'function') continue;
+}
+```
+
+如下定义了一些操控对象属性的工具：
+
+```javascript
+/* 
+ * 把p中可枚举的属性复制到o中，并返回o
+ * 如果o和p中含有同名属性，则覆盖o中的属性
+ * 该函数并不处理getter和setter以及复制属性
+ */
+function extend(o, p) {
+	for (prop in p) {		// 遍历p中的所有属性
+		o[prop] = p[prop];
+	}
+	return o;
+}
 
 
 
