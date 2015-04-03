@@ -163,7 +163,7 @@ null是JavaScript语言的关键字，表示一个特殊值，“空值”。它
 undefined是JavaScript语言全局变量，表示值的空缺，它是变量的一种取值，表明变量没有初始化。如，查询数组或对象的属性不存在会返回undefined；如果函数没有返回值，则返回undefined；没有提供实参的函数形参也是undefined。
 
 ## 3.5 全局对象
-全局对象(global object)在JavaScript中有着重要的用途，全局对象有如下属性：
+全局对象(global object)在JavaScript中有着重要的用途，全局对象有如下几种：
 
 * 全局属性，undefined、Infinity、NaN
 * 全局函数，isNaN()、parseInt()、eval()
@@ -239,7 +239,7 @@ for (var i  = 0; i < a.length; i++) {
 
 如果要比较两个单独的对象，就必须比较它的每一个属性。
 
-##　3.8 类型转换
+## 3.8 类型转换
 JavaScript中的取值是非常灵活的。当JavaScript期望使用一个布尔值时，可以提供任意类型，JavaScript会根据需要自动将其转换为布尔值。对于字符串和数字同样如此。如：
 
 ```javascript
