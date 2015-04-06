@@ -261,5 +261,201 @@ function extend(o, p) {
 }
 
 
+为了实现属性特性的查询和设置操作，ECMAScript 5中定义了一个名为属性描述符(property descriptor)的对象，这个对象代表那4个特性。描述符对象的属性和它们所描述的属性特性是同名的。因此，数据描述符对象的属性有value、writable、enumerable、configurable。存取器属性的描述符对象则用get属性和set属性代替value、writable。其中writable、enumerable、configurable都是布尔值，get属性和set属性是函数值。
+
+通过调用`Object.getOwnPropertyDescriptor()`可以获得某个对象特定属性的属性描述符,只能得到自有属性的描述符：
+
+```javascript
+// {value: 1, writable: true, enumerable: true, configurable: true}
+Object.getOwnPropertyDescriptor({x: 1}, "x");
+
+// 对于继承属性和不存在的属性，返回undefined
+Object.getOwnPropertyDescriptor({}, "x");		// undefined
+Object.getOwnPropertyDescriptor({}, "toString");// undefined
+```
+
+要想设置属性的特性，或者想让新建属性具有某种特性，则需要调用`Object.defineProperty()`，传入要修改的对象，要创建或修改的属性的名称以及属性描述符对象：
+
+```javascript
+var o = {};		// empty object
+// 添加一个不可枚举的数据属性x，并赋值为1
+Object.defineProperty(o, "x", {value: 1,
+								writable: true,
+								enumerable: false,
+								configurable: true});
+
+// 属性存在，但不可枚举								
+o.x;			// 1
+Object.keys(o);	// []
+
+// 现在对属性x做出修改，让它变为只读
+Object.defineProperty(o, "x", {writable: false});
+
+// 试图改变这个属性的值
+o.x = 2;		// 操作失败但不报错，在严格模式中抛出类型异常错误
+o.x;			// 1
+
+// 属性依然是可配置的，因此可以通过这种方式对它进行修改
+Object.defineProperty(o, "x", {value: 2});
+o.x;			// 2
+
+// 将x从数据属性修改为存取器属性
+Object.defineProperty(o, "x", {get: function() { return 0; }});
+o.x;			// 0
+```
+
+传入`Object.defineProperty()`的属性描述符对象不必包含所有4个特性。对于新创建的属性来说，默认的特性值是false或undefined。对于修改的已有属性来说，默认的特性值没有做任何修改。这个方法不修改继承属性。
+
+如果要同时修改或创建多个属性，则需要使用`Object.defineProperties()`。第一个参数是要修改的对象，第二个参数是一个映射表，它包含要新建或修改的属性的名称，以及它们的属性描述符。如：
+
+```javascript
+var p = Object.defineProperties({}, {
+	x: {value: 1, writable: true, enumerable: true, configurable: true},
+	y: {value: 1, writable: true, enumerable: true, configurable: true},
+	r: {get: function() {return Math.sqrt(this.x * this.x + this.y * this.y); },
+		enumerable: true,
+		configurable: true
+	}
+});
+```
+
+对于那些不允许创建或修改的属性来说，如果用`Object.defineProperties()`和`Object.defineProperty()`对其操作就会抛出类型错误异常，比如，给一个不可扩展的对象新增属性就会抛出类型错误异常。任何对`Object.defineProperties()`和`Object.defineProperty()`违反规则的使用都会抛出类型错误异常：
+* 如果对象是不可扩展的，则可以编辑已有的自有属性，但不能给它添加新属性。
+* 如果属性是不可配置的，则不能修改它的可配置性和可枚举性。
+* 如果存取器属性是不可配置的，则不能修改其getter和setter方法，也不能将它转换为数据属性。
+* 如果数据属性是不可配置的，则不能将转换为存取器属性。
+* 如果数据属性是不可配置的，则不能将它的可写性从false修改为true，但可以从true修改为false。
+* 如果数据属性是不可配置且不可写的，则不能修改它的值。然而可配置但不可写属性的值是可以修改的(实际上是先将它标记为可写的，然后修改它的值，最后转换为不可写的).
+
+```javascript
+/* 
+ * 给Object.prototype添加一个不可枚举的extend()方法
+ * 这个方法继承自调用它的对象，将作为参数传入的对象的属性一一复制
+ * 除了值之外，也复制属性的所有特性，除非在目标对象中存在同名的属性
+ * 参数对象的所有自有对象(包括不可枚举的属性)也会一一复制
+ */
+Object.defineProperty(Object.prototype,
+	"extend",
+	{
+		writable: true,
+		enumerable: false,
+		configurable: true,
+		value: function(o) {
+			// 得到所有的自有属性，包括不可枚举的属性
+			var names = Object.getOwnPropertyNames(o);
+			for (var i = 0; i < names.length; i++) {
+				if (names[i] in this) continue;
+				var desc = Object.getOwnPropertyDescriptor(o, names[i]);
+				Object.defineProperty(this, names[i], desc);
+			}
+		}
+	}
+);
+
+## 6.8 对象的三个属性
+每一个对象都有与之相关的原型(prototype)、类(class)和可扩展性(extensible attribute)。
+
+### 6.8.1 原型属性
+对象的原型属性是用来继承属性的，常把"o的原型属性"直接称为"o原型"。
+
+原型属性是在实例对象创建之初就设置好的。通过对象直接量创建的对象使用Object.prototype作为它们的原型。通过new创建的对象使用构造函数的prototype属性作为它们的原型。通过Object.create()创建的对象使用第一个参数作为它们的原型。
+
+在ECMAScript 5中，将对象作为参数传入`Object.getPrototypeOf()`可以查询它的原型。在ECMAScript 3中，则没有与之等价的函数。如：
+
+```javascript
+var a = {x: 1};
+var b = Object.create(a);
+Object.getPrototypeOf(b);	// Object {x: 1}
+```
+
+要想检测一个对象是否是另一个对象的原型(或处于原型链中)，请使用isPrototypeOf()方法，如：
+
+```javascript
+var p = {x: 1};
+var o = Object.create(p);
+p.isPrototypeOf(o);			// true
+Object.prototype.isPrototypeOf(o);	// true
+```
+
+isPrototypeOf()函数的实现的功能与instanceof运算符非常类似。
+
+### 6.8.2 类属性
+对象的类属性(class attribute)是一个字符串，用以表示对象的类型信息。ECMAScript 3和ECMAScript 5都未提供设置这个属性的方法，并只有一种间接的方法可以查询它。默认的toString()方法返回了如下这种格式的字符串：
+
+```javascript
+[object class]
+```
+
+因此，要想获得对象的类，可以调用对象的toString()方法，然后提取已返回字符串的第8位到倒数第二位位置之间的字符。如果对象继承的toString()方法重写了，必须间接调用Function.call()方法。如：
+
+```javascript
+function classof(o) {
+	if (o === null) return "Null";
+	if (o === undefined) return "Undefined";
+	return Object.prototype.toString.call(o).slice(8, -1);
+}
+```
+
+classof()函数可以传入任何类型的参数。数字、字符串和布尔值可以直接调用toString()方法，就和对象调用toString()方法一样，并且这个函数包含了对null和undefined的特殊处理。如：
+
+```javascript
+classof(null);			// "Null"
+classof(1);				// "Number"
+classof("");			// "String"
+classof(false);			// "Boolean"
+classof({});			// "Object"
+classof([]);			// "Array"
+classof(/./);			// "RegExp"
+classof(new Date());	// "Date"
+classof(window);		// "Window" or "global"
+function f() {};
+classof(new f());		// "Object"
+classof(function(){});	// "Function"
+```
+
+### 6.8.3 可扩展性
+对象的可扩展性表示是否可以给对象添加新属性。所有内置对象和自定义对象都是显示可扩展的，宿主对象的可扩展性是由Javascript引擎定义的。在ECMAScript 5中，所有内置对象和自定义对象都是可扩展的，除非将它们转换为不可扩展的。
+
+ECMAScript 5定义了用来查询和设置对象可扩展性的函数。通过将对象传入`Object.esExtensible()`，来判断该对象是否是可扩展的。如果想将对象转换为不可扩展的，需要调用`Object.preventExtensions()`，将待转换的对象作为参数传进去。注意，一旦将对象转换为不可扩展的，就无法将其转换回可扩展的了。同样需要注意的是，preventExtensions()只影响到对象本身的可扩展性。如果给一个不可扩展的对象的原型添加属性，这个不可扩展的对象同样会继承这些新的属性。
+
+Object.seal()和Object.preventExtensions()类似，除了能够将对象设置为不可扩展的，还可以将对象的所有自有属性都设置为不可配置的。也就是说，不能给个对象添加属性，而且它已有的属性不能删除或配置，不过它已有的可写属性依然可以设置。对于那些已经封闭(sealed)起来的对象是不能解封的。可以使用Object.isSealed()来检测对象的是否封闭。
+
+Object.freeze()将更严格地锁定对象。除了将对象设置为不可扩展的和将其属性设置为不可配置的之外，还可以将它自有的所有数据属性设置为只读(如果对象的存取器属性具有setter方法，存取器属性将不受影响)。使用Object.isFrozen()来检测对象是否冻结。
+
+Object.preventExtensions()、Object.seal()、Object.freeze()都返回传入的对象，可以进行如下使用：
+
+```javascript
+// 创建一个封闭的对象，包括一个冻结的原型和一个可枚举的属性
+var o = Object.seal(Object.create(Object.freeze({x: 1}), {y: {value: 2, writable: true}}));
+```
+
+## 6.9 序列化对象
+对象序列化(serialization)是指将对象的状态转换为字符串，也可将字符串还原为对象。ECMAScript 5提供了内置函数JSON.stringify()和JSON.parse()用来序列化和还原Javascript对象。这些方法都使用JSON作为数据交换格式，JSON的全称是Javascript Object Notation，Javascript对象表示法，它的语法和Javascript对象与数组直接量的语法非常相近：
+
+```javascript
+o = {x: 1, y: {z: [false, null, ""]}};		// 定义一个测试对象
+s = JSON.stringify(o);						// '{"x":1,"y":{"z":[false,null,""]}}'
+p = JSON.parse(s);							// p是o的深拷贝
+```
+
+JSON的语法是Javascript语法的子集，它并不能表示Javascript里的所有值。支持对象、数组、字符串、无穷大数字、true、false和null，并且它们可以序列化和还原。NaN、Infinity和-Infinity序列化的结果是null，日期对象序列化的是ISO格式的日期字符串，但JSON.parse()依然保留它们的字符串形态，而不会将它们还原为原始日期对象。函数、RegExp、Errror对象和undefined值不能序列化和还原。JSON.stringify()只能序列化对象可枚举的自有属性。对于一个不能序列化的属性来说，在序列化后的输出字符串中会将这个属性省略掉。JSON.stringify()和JSON.parse()都可以接收第二个可选参数，通过传入需要序列化或还原的属性列表来定制自定义的序列化或还原操作。
+
+## 6.10 对象方法
+除了那些不通过原型显示创建的对象，所有的Javascript对象都从Object.prototype继承属性。这些继承属性主要是方法，因为Javascript程序员普遍对继承方法更感兴趣。本节主要对定义在Object.prototype里的对象方法展开讲解。
+
+### 6.10.1 toString()方法
+toString()方法没有参数，它将返回一个表示调用这个方法的对象值的字符串。在需要将对象转换为字符串的时候，Javascript都会调用这个方法。
+
+默认的toString()依法的返回值带有的信息量很少，因此很多类都带有自定义的toString()方法。
+
+### 6.10.2 toLocaleString()方法
+除了基本的toString()方法之外，对象都包含toLocaleString()方法，这个方法返回一个表示这个对象的本地化字符串。Object中默认的toLocaleString()方法并不做任何本地化自身的操作，它仅调用toString()方法并返回对应值。Date和Number类对toLocaleString()方法做了定制，可以用它对数字、日期、时间做本地化的转换。Array类的toLocaleString()方法和toString()方法很像，唯一的不同是每个数组元素会调用toLocaleString()方法转换为字符串，而不是调用各自的toString()方法。
+
+### 6.10.3 toJSON()方法
+Object.prototype实际上没有定义toJSON()方法，但对于需要执行序列化的对象来说，JSON.stringify()方法会调用toJSON()方法。
+
+### 6.10.4 valueOf()方法
+valueOf()方法和toString()方法非常类似，但往往当Javascript需要将对象转换为某种原始值而非字符串的时候才会调用它，尤其是转换为数字的时候。如果在需要使用原始值的上下文中使用了对象，Javascript就会自动调用这个方法。
+
 
 Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
