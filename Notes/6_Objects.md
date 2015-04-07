@@ -255,11 +255,147 @@ for (p in o) {
  */
 function extend(o, p) {
 	for (prop in p) {		// 遍历p中的所有属性
+		o[prop] = p[prop];	// 将属性添加到o中
+	}
+	return o;
+}
+
+/* 
+ * 把p中可枚举的属性复制到o中，并返回o
+ * 如果o和p中含有同名属性，o中的属性将不受影响
+ * 该函数并不处理getter和setter以及复制属性
+ */
+function merge(o, p) {
+	for (prop in p) {		// 遍历p中的所有属性
+		if (o.hasOwnProperty(prop)) continue;
 		o[prop] = p[prop];
 	}
 	return o;
 }
 
+/* 
+ * 如果o中的属性在p中没有同名属性，则从o中删除这个属性
+ * 返回o
+ */
+function restrict(o, p) {
+	for (prop in o) {
+		if (!(prop in p)) delete o[prop];
+	}
+	return o;
+}
+
+/* 
+ * 如果o中的属性在p中存在同名属性，则从o中删除这个属性
+ * 返回o
+ */
+function substract(o, p) {
+	for (prop in p) {
+		if ( prop in p) delete o[prop];
+	}
+	return o;
+}
+
+/*
+ * 返回一个新的对象，这个对象同时拥有o的属性和p的属性
+ * 如果o和p中有重名属性，使用p中的属性值
+ */
+function union(o, p) { return extend(extend({}, o), p); }
+
+/*
+ * 返回一个新的对象，这个对象拥有o和p中的同名属性
+ * 使用o中的值
+ */
+function intersection(o, p) { return restrict(extend({}, o), p); }
+
+/*
+ * 返回一个数组，这个数组中包含的是o中要枚举的自有属性的名字
+ */
+function keys(o) {
+	if (typeof o !== "object") throw TypeError();
+	var result = [];
+	for (var prop in o) {
+		if (o.hasOwnProperty(prop))
+			result.push(prop);
+	}
+	return result;
+}
+ 
+```
+
+除了for/in循环之外，ECMAScript 5定义了两个用以枚举属性名称的函数。第一个是Object.keys()，它返回对象中可枚举的自有属性名称组成的数组。
+
+ECMAScript 5中第二个枚举属性的函数是Object.getOwnPropertyNames()，它返回对象中所有自有属性名称组成的数组。
+
+## 6.6 属性getter和setter
+对象的属性是由名字、值和一组特性(attribute)构成的，在ECMAScript 5中，属性值可以用一个或两个方法替代，这两个方法就是getter和setter。由setter和getter定义的属性称做存取器属性(accessor property)，它不同于数据属性(data property)，数据属性中有一个简单的值。
+
+当程序查询存取器属性的值时，Javascript调用getter方法，这个方法的返回值就是属性存取表达式的值。当程序设置一个存取器属性的值时，Javascript调用setter方法，将赋值表达式右侧的值当做参数传入setter。
+
+和数据属性不同，存取器属性不具有可写性(writable attribute)。如果属性同时具有getter和setter方法，那么它是一个读/写属性。如果它只有getter方法，那么它是一个只读属性。如果它只有setter方法，那么它是一个只写属性，读取只写属性总是返回undefined。
+
+定义存取器属性的简单的方法是使用对象直接量语法的一种扩展写法：
+
+```javascript
+var o = {
+	// 普通数据属性
+	data_prop: value,
+	// 存取器属性都是成对定义的函数
+	get accessor_prop() { /*  */ }，
+	set accessor_prop(value) { /*  */ }
+};
+```
+
+如下程序定义了一个2D笛卡尔坐标的对象，它有两个普通的属性x和y分别表示对应点的X坐标和Y坐标，它还有两个等价的存取器属性用来表示点的极坐标：
+
+```javascript
+var p = {
+	x: 1.0,
+	y: 1.0,
+	
+	get r() { return Math.sqrt(this.x * this.x + this.y * this.y); }
+	set r(newvalue) { 
+		var oldvalue = Math.sqrt(this.x * this.x + this.y * this.y);
+		var ratio = newvalue / oldvalue;
+		this.x *= ratio;
+		this.y *= ratio;
+	},
+	
+	get theta() { return Math.atan2(this.y, this.x); }
+};
+```
+
+代码中getter和setter里使用this关键字表示指向这个点的对象。
+
+同数据属性一样，存取器属性是可以继承的，因此可以将上述代码中的对象p当做另一个点的原型，如：
+
+```javascript
+var q = Object.create(q);
+q.x = 1, q.y = 1;
+console.log(q.r);
+console.log(q.theta);
+```
+
+另外如下代码检测属性的写入值以及在每次属性读取时返回不同值：
+
+```javascript
+var serialnum = {
+	// $符号暗示这个属性是一个私有属性
+	$n: 0,
+	
+	get next() { return this.$n++; },
+	set next(n) {
+		if (n >= this.$n) this.$n = n;
+		else throw TypeError();
+	}
+};
+```
+
+## 6.7 属性的特性
+除了包含名字和值之外，属性还包含一些标识它们可写、可枚举和可配置的特性。在ECMAScript 3中无法设置这些特性，所有通过ECMAScript 3的程序创建的属性都是可写的、可枚举和可配置的，且无法对这些特性做修改。但在ECMAScript 5中这些特性是十分重要的：
+* 可以通过这些API给原型对象添加方法，并将它们设置成不可枚举的，这让它们看起来更像内置方法。
+* 可以通过这些API给对象定义不能修改或者删除的属性，以锁定这个对象。
+
+可以认为一个属性包含一个名字和4个特性。数据属性的4个特性分别是它的值(value)、可写性(writable)、可枚举性(enumerable)和可配置性(configurable)。存取器属性不具有值(value)特性和可写性，它们的可写性是由setter方法存在与否决定的。因此存取器属性的4个特性是读取(get)、写入(set)、可枚举性和可配置性。
 
 为了实现属性特性的查询和设置操作，ECMAScript 5中定义了一个名为属性描述符(property descriptor)的对象，这个对象代表那4个特性。描述符对象的属性和它们所描述的属性特性是同名的。因此，数据描述符对象的属性有value、writable、enumerable、configurable。存取器属性的描述符对象则用get属性和set属性代替value、writable。其中writable、enumerable、configurable都是布尔值，get属性和set属性是函数值。
 
