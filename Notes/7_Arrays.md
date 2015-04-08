@@ -357,29 +357,212 @@ a.shift();				// 1 a:[]
 toLocaleString()是toString()方法的本地化版本。它调用元素的toLocaleString()方法将每个元素转化为字符串，并且使用本地化分隔符将这些字符串连接起来生成最终的字符串。
 
 ## 7.9 ECMAScript 5中的数组方法
-
+ECMAScript 5定义了9个新的数组方法来遍历、映射、过滤、检测、简化和搜索数组。大多数方法的第一个参数接收一个函数，并且对数组的每个元素(或一些元素)调用一次该函数。如果是稀疏数组，对不存在的元素不调用该函数。在多数情况下，调用提供的函数使用三个参数：数组元素、元素的索引和数组本身。通常，只需要第一个参数值，可以忽略后两个参数。ECMAScript 5数组方法的第二个参数是可选的，如果使用第二个参数，则调用的函数被看做是第二个参数的方法。被调用函数的返回值非常重要，但是不同的方法处理返回值的方式也不一样。ECMAScript 5中的数组方法都不会修改它们调用的原始数组。但传递给这些方法的函数是可以修改这些数组的。
 
 ### 7.9.1 forEach()
+forEach()方法从头至尾遍历数组，为每个元素调用指定的函数。传递的函数作为forEach()的第一个参数。然后forEach()使用三个参数调用函数：数组元素、元素的索引和数组本身。如：
+
+```javascript
+var data = [1, 2, 3, 4, 5];
+var sum = 0;
+data.forEach(function(value) { sum += value; });
+console.log(sum);									// 15
+data.forEach(function(v, i, a) { a[i] += 1; });
+console.log(data);									// [2, 3, 4, 5, 6]
+```
+
+forEach()方法无法在所有元素都传递给调用的函数之前终止遍历。也就是说，没有像for循环中使用的相应的break语句。如果要提前终止，必须把forEach()方法放在一个try块中，并能抛出一个异常。如：
+
+```javascript
+function foreach(a, f, t) {
+	try { a.forEach(f, t); }
+	catch(e) {
+		if (e === foreach.break) return;
+		else throw e;
+	}
+}
+foreach.break = new Error("StopIteration");
+```
 
 ### 7.9.2 map()
+map()方法将调用的数组的每个元素传递给指定的函数，并返回一个数组，它包含该函数的返回值。如：
+
+```javascript
+a = [1, 2, 3];
+b = a.map(function(x) { return x*x; });		// [1, 4, 9]
+```
+
+传递给map()的函数的调用方式和传递给forEach()的函数的调用方式一样。但传递给map()的函数应该有返回值。注意，map()返回的是新数组：它不修改调用的数组。如果是稀疏数组，返回的也是相同方式的稀疏数组：它具有相同的长度，相同的缺失元素。
 
 ### 7.9.3 filter()
+filter()方法返回的数组元素是调用的数组的一个子集。传递的函数是用来逻辑判断的：返回true或false。如果返回值为true或能转化为true的值，那么传递给判定函数的元素就是这个子集的成员，它将被添加到一个作为返回值的数组中。如：
+
+```javascript
+a = [5, 4, 3, 2, 1];
+smallvalues = a.filter(function(x) { return x < 3; });			// [2, 1]
+everyother = a.filter(function(x, i) { return i % 2 == 0; });	// [5, 3, 1]
+```
+
+filter会跳过稀疏数组中缺少的元素，它的返回数组总是稠密的。将稀疏数组转换为非稀疏数组可以使用如下方法：
+
+```javascript
+var dense = sparse.filter(function() { return true; });
+```
+
+压缩空缺并删除undefined和null元素，可以这样使用：
+
+```javascript
+a = a.filter(function(x) { return x !== undefined && x !== null; });
+```
 
 ### 7.9.4 every() and some()
+every()和some()方法是数组的逻辑判定：它们对数组元素应用指定的函数进行判定，返回true或false。
+
+every()方法：当且仅当数组中的所有元素调用判定函数都返回true时，它才返回true。some()方法：当数组中至少有一个元素调用函数返回true，它就返回true。如：
+
+```javascript
+a = [1, 2, 3, 4, 5];
+a.every(function(x) { return x < 10; });		// true
+a.every(function(x) { return x % 2 === 0; });	// false
+a.some(function(x) { return x % 2 === 0; });	// true
+a.some(isNaN);									// false
+```
+
+一旦every()和some()方法确认返回值它们就是停止遍历数组元素。some()在判定函数第一次返回true后就返回true，如果判定函数一直返回false，它将会遍历整个数组。every()在判定函数第一次返回false后就返回false，如果判定函数一直返回true，它将会遍历整个数组。对空数组，every()返回true，some()返回false。
 
 ### 7.9.5 reduce() and reduceRight()
+reduce()和reduceRigth()方法使用指定的函数将数组元素进行组合，生成单个值。如：
+
+```javascript
+var a = [1, 2, 3, 4, 5];
+var sum = a.reduce(function(x, y) { return x + y; }, 0);		// sum:15
+var product = a.reduce(function(x, y) { return x*y; }, 1);		// product:120
+var max = a.reduce(function(x, y) { return x > y ? x : y; });	// max:5
+```
+
+reduce()方法需要两个参数。第一个参数被调用的函数，任务就是将两个值组合成一个值，并返回化简后的值。第二个参数为可选参数，是传递给被调用函数的初始值。被调用函数的第一个参数是目前为止的结果。第一次调用时，使用reduce()的第二个参数，如果没有提供第二个参数，则使用数组的第一个值。被调用函数的第二个参数是使用数组中当前值。
+
+在空数组上，不指定第二个参数调用reduce()将导致类型错误异常。如果数组只有一个元素，不指定第二个参数调用reduce()或者空数组上指定第二个参数调用reduce()，将直接返回数组元素或者默认值。
+
+reduceRight()的工作原理与reduce()方法一样，只是它从数组的右侧开始处理。
 
 ### 7.9.6 indexOf() and lastIndexOf()
+indexOf()和lastIndexOf()搜索整个数组中具有给定值的元素，返回找到的第一个元素的索引或者如果没有找到就返回-1。index()从头至尾搜索，而lastIndexOf()则反向搜索：
+
+```javascript
+a = [0, 1, 2, 1, 0];
+a.indexOf(1);			// 1
+a.lastIndexOf(1);		// 3
+a.indexOf(3);			// -1
+```	
+
+indexOf()和lastIndexOf()方法不接收一个函数作为其参数。第一个参数是需要搜索的值，第二个参数是可选的：它指定数组中开始搜索的一个索引。如果省略，indexOf()从头开始搜索，lastIndexOf()从末尾开始搜索。可以使用第二个参数将所有匹配元素的索引返回，如：
+
+```javascript
+function findall(a, x) {
+	var results = [], len = a.length, pos = 0;
+	while(pos < len) {
+		pos = a.indexOf(x, pos);
+		if (pos === -1) break;
+		results.push(pos);
+		pos ++;
+	}
+	return results;
+}
+```
+
+字符串也有indexOf()和lastIndexOf()方法，它们和数组方法的功能类似。
 
 ## 7.10 数组类型
+数组是具有特殊行为的对象。给定一个对象，判定它是否为数组通常非常有用。在ECMAScript 5中，可以使用Array.isArray()函数来做这件事情：
+
+```javascript
+Array.isArray([]);	// true
+Array.isArray({});	// false
+```
+
+但是，在ECMAScript 5之前，要区分数组和非数组对象却很困难。typeof操作符也不行：对数组返回对象，除函数外的所有对象都如此。instanceof操作符也只能应用于简单的形式，如：
+
+```javascript
+[] instanceof Array;		// true
+([]) instanceof Array;		// false
+```
+
+解决方案是检查对象的类属性，对数组而言该属性的值是"Array"，因此在ECMAScript 3中isArray()函数可以这样写：
+
+```javascript
+var isArray = Array.isArray || function(o) {
+	return typeof o === "object" &&
+		Object.prototype.toString.call(o) === "[object Array]";
+};
+```
 
 ## 7.11 类数组对象
+Javascript数组的一些特性是其他对象没有的：
+* 当有新的元素添加到列表中时，自动更新length属性。
+* 设置length为一个较小的值将截断数组。
+* 从Array.prototype中继承一些有用的方法。
+* 某类属性为Array。
+
+这些特性让Javascript数组和常规的对象有明显的区别。但是它们不是定义数组的本质特性。把拥有一个数值length属性和对应非负整数属性的对象看做一种类型的数组。以下代码为一个常规对象增加了一些属性使其变成类数组对象，然后遍历生成的伪数组的元素:
+
+```javascript
+var a = [];
+var i = 0;
+while(i < 10) {
+	a[i] = i * i;
+	i++;
+}
+a.length = i;
+
+var total = 0;
+for(var j = 0; j < a.length; j++)
+	total += a[j];
+```
+
+在客户端Javascript中，一些DOM方法(document.getElementsByTagName())也返回类数组对象。下面的方法可以检测类数组对象。
+
+```javascript
+/* 
+ * 判断o是否是一个类数组对象
+ * 字符串和函数有length属性，可用typeof检测排除
+ * DOM文本节点也有length属性，需要用o.nodeType != 3将其排除
+ */
+function isArrayLike(o) {
+	if (o &&								// o非null、undefined等
+		typeof o === "object" &&			// 非对象
+		isFinite(o.length) &&				// o.length是有限数值
+		o.length >= 0 &&					// o.length是非负数
+		o.length === Math.floor(o.length) &&// o.length是整数
+		o.length < 4294967296)				// o.length < 2^32
+		return true;
+	else
+		return false;
+}
+```
 
 ## 7.12 作为数组的字符串
+在ECMAScript 5中，字符串的行为类似于只读的数组。除了用charAt()方法来访问单个的字符以外，可可以使用方括号：
 
+```javascript
+var s = 'test';
+s.charAt(0);			// "t"
+s[1];					// "e"
+```
 
+针对字符串的typeof操作符仍然返回"string"，但是如果给Array.isArray()传递字符串，这将返回false。
 
+可索引的字符串的最大的好处就是简单，用方括号代替了charAt()调用，这样更加简洁、可读并且可能更高效。不公如此，字符串的行为类似于数组的事实使得通用的数组方法可以应用到字符串上，如：
 
+```javascript
+s = "Javascript";
+Array.prototype.join.call(s, " ");			// "J a v a s c r i p t"
+Array.prototype.filter.call(s,
+	function(x) {
+		return x.match(/[^aeiou]/);
+	}).join("");							// "Jvscrpt"
+```
 
+字符串是不可变值，故当把它们作为数组看待时，它们是只读的。如push()、sort()、reverse()和splice()等数组方法会修改数组，它们在字符串上是无效的。这将导致出错，且没有提示。
 
 Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
