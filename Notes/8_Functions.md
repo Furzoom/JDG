@@ -345,21 +345,323 @@ var j = operate2("add", "hello", oprate2("add", " ", "world"));
 var k = operate2("pow", 10, 2);
 ```
 
+### 自定义函数属性
+Javascript中的函数并不是原始值，而是一种特殊的对象，函数可以有属性。当函数需要一个静态变量来在调用时保持某个值不变，最方便的方式就是给函数定义属性，而不是定义全局变量，显示定义全局变量会让命名空间变得更加杂乱无章。如需要一个返回唯一整数的函数，需要跟踪每次的返回值，可以将其存放到全局变量中，但这并不是必需的，最好将这个信息保存到函数对象的一个属性中，如：
+
+```javascript
+uniqueInteger.counter = 0;
+
+function uniqueInteger() {
+	return uniqueInteger.counter++;
+}
+```
+
 ## 8.5 作为命名空间的函数
+在函数中声明的变量在整个函数体内都是可见的，在函数的外部是不可见的，不在任何函数内声明的变量是全局变量，在整个Javascript程序中都是可见的。基于这样的原因，常常简单地定义一个函数用作临时的命名空间，在这个命名空间内定义的变量都不会污染到全局命名空间。
+
+将代码放入一个函数内，然后调用这个函数。这样全局变量就成成了函数内的局部变量：
+
+```javascript
+function mymodule() {
+	// 模块代码
+	// 局部变量
+}
+
+mymodule();
+```
+
+这段代码仅仅定义了一个单独的全局变量：mymodule函数。这样还是太麻烦，可以直接定义一个匿名的函数，并在表达式中调用它：
+
+```javascript
+(function() {
+	// 模块代码
+}());
+```
+
+这种定义匿名函数并立即在单个表达式中调用它的写法非常常见，已经成为一种惯用法了。如下，定义了一个extend()函数的匿名函数，匿名函数中的代码检测了是否出现了一个众所周知的IE bug，如果出现了这个bug，就返回一个带补丁的函数版本。
+
+```javascript
+/* 
+ * 定义一个扩展函数，用来将第二个以及后续参数复制至第一个参数
+ * 在IE多数版本中，如果o的属性拥有一个不可枚举的同名属性，则for/in循环
+ * 不会枚举对象o的可枚举属性
+ */
+var extend = (function() {
+	for (var p in { toString: null }) {
+		return function extend(o) {
+			for (var i = 1; i < arguments.length; i++) {
+				var source = arguments[i];
+				for (var prop in source) o[prop] = source[prop];
+			}
+			return o;
+		};
+	}
+	
+	return function patched_extend(o) {
+		for (var i = 1; i < arguments.length; i++) {
+			var source = arguments[i];
+			for (var prop in source) o[prop] = source[prop];
+			
+			for (var j = 0; j < protoprops.length; j++) {
+				prop = protoprops[j];
+				if (source.hasOwnProperty(prop)) o[prop] = source[prop];
+			}
+		}
+		return o;
+	};
+	
+	var protoprops = ["toString", "valueOf", "constructor", "hasOwnProperty",
+					"isPrototypeOf", "propertIsEnumerable", "toLocaleString"];
+}());
+```
 
 ## 8.6 闭包
+Javascript同样采用词法作用域(lexical scoping)，也就是说，函数的执行依赖于变量作用域，这个作用域是函数定义是决定的，而不是函数调用时决定的。Javascript函数对象的内部状态不仅包含函数的代码逻辑，不必须引用当前的作用域链。函数对象可以通过作用域链相互关联起来，函数体内部的变量都可以保存在函数作用域内，这种特性在计算机科学文献中称为闭包。
+
+从技术的角度讲，所有的Javascript函数都是闭包，它们都是对象，它们都关联到作用域链。定义大多数函数时的作用域链在调用函数时依然有效，但这并不影响闭包。当调用函数时闭包所指向的作用域链和定义函数时的作用域链不是同一个作用域链时，事情就变得非常微妙。当一个函数嵌套了另外一个函数，外部函数将嵌套的函数对象作用返回值返回的时候往往会发生这种事情。
+
+```javascript
+var scope = "global scope";
+function checkscope() {
+	var scope = "local scope";
+	function f() { return scope; };
+	return f();
+}
+checkscope();							// "local scope"
+```
+
+checkscope()函数声明了一个局部变量，并定义了一个函数f()，函数f()返回了这个变量的值，最后将函数f()的执行结果返回。可以很清楚的知道返回值为"local scope"。改动代码如下：
+
+```javascript
+var scope = "global scope";
+function checkscope() {
+	var scope = "local scope";
+	function f() { return scope; };
+	return f;
+}
+checkscope()();							// "local scope" ?
+```
+
+checkscope()现在仅仅返回函数内嵌套的一个函数对象，而不是直接返回结果。在定义函数的作用域外面，调用这个嵌套的函数，会发生什么呢？
+
+Javascript函数的执行用到了作用域链，这个作用域链是函数定义的时候创建的。嵌套的函数f()定义在这个作用域链里，其中的变量scope一定是局部变量，不管在何时何地执行函数f()，这种绑定在执行f()时依然有效。
+
+前面的uniqueInteger()函数使用自身的一个属性来保存第次返回的值，以便每次调用都能跟踪上次的返回值。但其值可以被外界重置为其他值，导致不一定能产生唯一的整数。使用闭包则可以实现。如：
+
+```javascript
+var uniqueInteger = (function() {
+						var counter = 0;
+						return function() { return counter++; };
+					}());
+```
+
+这段代码定义了一个立即调用的函数，这个函数返回另一个函数，这是一个嵌套函数，它可以访问作用域内的变量，也可以访问外部函数中定义的counter变量。当外部的函数返回时，其他任何代码都无法访问counter变量。
+
+像counter一样的私有变量不是只能用在一个单独的闭包内，在同一个外部函数内定义的多个嵌套函数也可以访问它，这多个嵌套函数都共享一个作用域链，如：
+
+```javascript
+function counter() {
+	var n = 0;
+	return {
+		count: function() { return n ++; },
+		reset: function() { n = 0; }
+	};
+}
+
+var c = counter(), d = counter();
+c.count();							// 0
+d.count();							// 0
+c.reset();
+c.count();							// 0
+d.count();							// 1
+```
+
+counter()函数返回一个对象，这个对象包含两个方法：count()返回下一个整数，reset()将计算器重置为内部状态。这两个方法都可以访问私有变量n。再者，每次调用counter()都会创建一个新的作用域链和一个新的私有变量。因此，如果调用counter()两次，则会得到两个计数器对象，而且彼此包含不同的私有变量，调用其中一个计数器对象的count()和reset()不会影响另一个对象。
+
+从技术角度看，其实可以将这个闭包合并为属性存取器方法getter和setter。下面这段代码所示的counter()函数的版本是上面的变种，私有状态的实现使用了闭包：
+
+```javascript
+function counter(n) {
+	return {
+		get count() { return n++; },
+		set count(m) {
+			if (m >= n) n = m;
+			else throw Error("count can only be set to a larger value");
+		}
+	};
+}
+
+var c = counter(1000);
+c.count;				// 1000
+c.count;				// 1001
+c.count = 2000;			
+c.count;				// 2000
+c.count = 2000;			// Error!
+```
+
+注意，这个版本的counter()函数并未声明局部变量，而只是使用参数n来保存私有状态，属性存取器方法可以访问n。这样的话，调用counter()的函数就可以指定私有变量的初始值了。
+
+```javascript
+/* 
+ * 这个函数给对象o增加了属性存取器方法
+ * 方法名称为get<name>和set<name>，如果提供一个判定函数
+ * setter方法就会用它来检测参数的合法性，然后在存储它
+ * 如果判定函数返回false，setter方法抛出一个异常
+ *
+ * 这个函数还有一个非同寻常之处，就是getter和setter函数
+ * 所操作的属性值并没有存储在对象o中
+ * 相反，这个值仅仅是保存在函数中的局部变量中
+ * getter和setter方法同样是局部函数，因此可以访问这个局部变量
+ * 也就是说，对于两个存取器方法来说这人变量是私有的
+ * 没有办法绕过存取器方法来设置或修改这个值
+ */
+function addPrivateProperty(o, name, predicate) {
+	var value;						// 属性值
+	
+	o["get" + name] = function() { return value; };
+	o["set" + name] = function(v) {
+		if (predicate && !predicate(v))
+			throw new Error("set" + name + ": invalid value " + v);
+		else
+			value = v;
+	};
+}
+
+// test
+var o = {};
+addPrivateProperty(o, "Name", function(x) { return typeof x == "string"; });
+
+o.setName("Frank");
+console.log(o.getName());		// "Frank"
+o.setName(0);					// Error
+```
+
+在同一个作用域链中定义两个闭包，这两个闭包共享同样的私有变量或变量。但要特别小心那些不希望共享的变量往往不经意间共享给了其他的闭包，如：
+
+```javascript
+function constfunc(v) { return function() { return v; }; }
+var funcs = [];
+for (var i = 0; i < 10; i ++) funcs[i] = constfunc(i);
+funcs[5]();					// 5
+```
+
+这段代码利用循环创建了很多个闭包，当写类似这种代码的时候往往会犯一个错误：那就j试图将循环代码移入定义这个闭包的函数之内，如：
+
+```javascript
+function constfuncs() {
+	var funcs = [];
+	for (var i = 0; i < 10; i ++) 
+		funcs[i] = function() { return i; };
+	return funcs;
+}
+
+var funcs = constfuncs();
+funcs[5]();					// 10
+```
+
+上面的代码创建了10个闭包，并将它们存储到一个数组中。这些闭包都是在同一个函数调用中定义的，因此它们共享变量i。当constfuncs()返回时，变量i的值是10，因此，数组中的函数的返回值都是同一个值。关联到闭包的作用域链都是活动的，记住这一点非常重要。嵌大戏的函数不会将作用域内的私有成员复制一份，也不会对所绑定的变量生成表态快照。
 
 ## 8.7 函数属性、方法和构造函数
+Javascript程序中，函数是值。对函数执行typeof运算会返回字符串"function"，但是函数是Javascript中特殊的对象。因为函数也是对象，它们也可以拥有属性和方法，就像普通的对象可以拥有属性和方法一样。
 
 ### 8.7.1 length属性
+在函数体里，arguments.length表示传入函数的实参的个数。而函数本身的length属性则有着不同含义。表示函数定义时给出的个数，通常也是在函数调用时期望传入函数的实参的个数。
+
+下面的函数check()，从另外一个函数给它传入arguments数组，它比较arguments.length(实际传入的实参个数)和arguments.callee.length(期望传入的实参个数)来判断所传入的实参个数是否正确。如：
+
+```javascript
+function check(args) {
+	var actual = args.length;
+	var expected = args.callee.length;
+	if (actual !== expected)
+		throw Error("Expected " + expected + " args; got " + actual);
+}
+
+function f(x, y, z) {	
+	check(arguments);
+	return x + y + z;
+}
+```
 
 ### 8.7.2 prototype属性
+每一个函数都包含一个prototype属性，这个属性是指向一个对象的引用，这个对象称做原型对象。每一个函数都包含不同的原型对象。当将函数用做构造函数的时候，新创建的对象会从原型对象上继承属性。
 
-### 8.7.3 call()方法和apply()方法和apply
+### 8.7.3 call()方法和apply()方法
+可以将call()和apply()看做是某个对象的方法，通过调用方法的形式来间接调用函数。call()和apply()的第一个实参是要调用函数的母对象，它是调用上下文，在函数体内通过this来获得对它的引用。要想以对象o的方法来调用函数f()，可以这样使用，如：
+
+```javascript
+f.call(o);
+f.apply(o);
+```
+
+每行代码和下面的代码的功能类似：
+
+```javascript
+o.m = f;
+o.m();
+delete o.m;
+```
+
+有ECMAScript 5的严格模式中，call()和apply()的第一个实参都会变为this的值，哪怕传入的实参是原始值甚至是null或undefined。其他模式下，传入null和undefined都会被全局对象代替，其他原始值会被包装对象替代。
+
+对于call()来说，第一个调用上下文实参之后的所有实参就是要传入待调用函数的值。apply()方法和call()类似，但传入实参都放入一个数组中，如：
+
+```javascript
+f.call(o, 1, 2);
+f.apply(o, [1, 2]);
+```
+
+给apply()传入的参数数组可以是任意长度的，传入apply()的参数数组可以是类数组对象也可以是真实数组。
 
 ### 8.7.4 bind()方法
+bind()是在ECMAScript 5中新增的方法，但在ECMAScript 3中可以轻易模拟bind()。主要作用是将函数绑定至某个对象。当在函数f()上调用bind()方法并传入一个对象o作为参数，这个方法将返回一个新的函数。调用新的函数将会把原始的函数f()当做o的方法来调用。传入新函数的任何实参都将传入原始函数，如：
+
+```javascript
+function f(y) { return this.x + y; }
+var o = {x: 1 };
+var g = f.bind(o);
+g(2);				// 3
+```
+
+可以通过如下代码实现这种绑定：
+
+```javascript
+function bind(f, o) {
+	if (f.bind) return f.bind(o);
+	else return function() {
+		return f.apply(o, arguments);
+	};
+}
+```
+
+bind()方法不仅仅是将函数绑定至一个对象，它还附带一些其他应用：除第一个实参外，其他实参也会绑定到this。这是一种常见的函数式编程技术，称为柯里化(currying)。如：
+
+```javascript
+var sum = function(x, y) { return x + y; };
+var succ = sum.bind(null, 1);
+succ(2);			// 3 x:1, y:2
+
+function f(y, z) { return this.x + y + z; };
+var g = f.bind({x: 1}, 2);
+g(3);				// 6 this.x:1, y:2, z:3
+```
+
+```javascript
+if (!Function.prototype.bind) {
+	Function.prototype.bind = function(o){
+		var self = this, boundArgs = arguments;
+		return function() {
+			var args = [], i;
+			for (i = 1; i < boundArgs.length; i ++) args.push(boundArgs[i]);
+			for (i = o; i < arguments.length; i ++) args.push(arguments[i]);
+			return self.apply(o, args);
+		};
+	};
+}
+```
 
 ### 8.7.5 toString()方法
+函数也有toString()方法，其返回一个字符串，函数的toString()方法都返回函数的完整源码。内置函数往往返回一个类似"[native code]"的字符串作为函数体。
 
 ### 8.7.6 Function()构造函数
 
