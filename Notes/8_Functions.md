@@ -664,16 +664,226 @@ if (!Function.prototype.bind) {
 函数也有toString()方法，其返回一个字符串，函数的toString()方法都返回函数的完整源码。内置函数往往返回一个类似"[native code]"的字符串作为函数体。
 
 ### 8.7.6 Function()构造函数
+不管是通过函数定义语句还是函数直接量表达式，函数的定义都要使用function关键字。但函数还可以通过Function()构造函数来定义，如：
+
+```javascript
+var f = new Function("x", "y", "return x * y;");
+```
+
+其等价于：
+
+```javascript
+var f = function(x, y) { return x * y; }
+```
+
+Function()构造函数可以传入任意数量的字符串实参，最后一个实参表示的文本就是函数体，它可以包含任意的Javascript语句，每两条语句之间用分号分隔。传入构造函数的其他所有的实参字符串是指定函数的形参名字的字符串。如果定义的函数不包含任何参数，只需给构造函数简单传入一个字符串即可。Function()构造函数创建一个匿名函数。
+
+需要注意以下几点：
+* Function()构造函数允许Javascript在运行时动态地创建并编译函数。
+* 每次调用Function()构造函数都会解析函数体，并创建新的函数对象。如果是在一个循环或者多次调用的函数中执行这个构造函数，执行效率会受影响。相比之下，循环中嵌套函数和函数定义表达式则不会每次执行时都重新编译。
+* 最后一点，也是关于Function()构造函数非常重要的一点，就是它所创建的函数并不是使用词法作用域，相反，函数体代码的编译总是会在顶层函数执行，如：
+
+```javascript
+var scope = "global";
+function constructFunction() {
+	var scope = "local";
+	return new Function("return scope;");
+}
+
+constructFunction()();		// "global"
+```
+
+可以将Function()构造函数认为是在全局作用域中执行的eval()，eval()可以在自己的私有作用域内定义新的变量和函数，Function()构造函数在实际编程过程中很少会用到。
 
 ### 8.7.7 可调用的对象
+可调用的对象(callable object)是一个对象，可以在函数调用表达式中调用这个对象。所有的函数都是可调用的，但并非所有的可调用对象都是函数。
+
+客户端方法(如Window.alert())使用了可调用的宿主对象，而不是内置函数对象，它们本质上不是Function对象。
+
+另一个可调用对象是RegExp对象，可以直接调用RegExp对象，这比调用它的exec()方法更快捷一些。
+
+检测对象是否是真正的对象：
+
+```javascript
+function isFunction(x) {
+	return Object.prototype.toString.call(x) === "[object Function]";
+}
+```
 
 ## 8.8 函数式编程
+Javascript并非函数式编程语言，但在Javascript中可以像操控对象一样操控函数，也就是说可以在Javascript中应用函数式编程技术。
 
 ### 8.8.1 使用函数处理数组
+假设有一个数组，数组元素都是数字，想要计算这些元素的平均值和标准差。若使用非函数式编程风格，代码如下：
+
+```javascript
+var data = [1, 1, 3, 5, 5];
+var total = 0;
+
+for (var i = 0; i < data.length; i ++) total += data[i];
+var mean = total / data.length;
+
+total = 0;
+for (var i = 0; i < data.length; i ++) {
+	var deviation = data[i] - mean;
+	total += deviation * deviation;
+}
+
+var stddev = Math.sqrt(total / (data.length - 1));
+```
+
+可以使用数组方法map()和reduce()来实现同样的计算，这各实现极其简洁：
+
+```javascript
+var sum = function(x, y) { return x + y; };
+var square = function(x) { return x * x; };
+
+var data = [1, 1, 3, 5, 5];
+var mean = data.reduce(sum) / data.length;
+var deviations = data.map(function(x) { return x - mean; });
+var stddev = Math.sqrt(deviations.map(square).reduce(sum) / (data.length - 1));
+```
+
+如果在ECMAScript 3中可以自定义map()和reduce()函数：
+
+```javascript
+var map = Array.prototype.map
+	? function(a, f) { return a.map(f); }
+	: function(a, f) {
+		var results = [];
+		for (var i = 0, len = a.length; i < len; i ++) {
+			if (i in a) results[i] = f.call(null, a[i], i, a);
+		}
+		return results;
+	};
+
+var reduce = Array.prototype.reduce
+	? function(a, f, initial) {
+		if (arguments.length > 2)
+			return a.reduce(f, initial);
+		else
+			return a.reduce(f);
+	}
+	: function(a, f, initial) {
+		var i = 0, len = a.length, accumulator;
+		if (arguments.length > 2) accumulator = initial;
+		else {
+			if (len == 0) throw TypeError();
+			while (i < len) {
+				if (i in a) {
+					accumulator = a[i++];
+					break;
+				}
+				else i ++;
+			}
+			if (i == len) throw TypeError();
+		}
+		while (i < len) {
+			if (i in a)
+				accumulator = f.call(undefined, accumulator, a[i], i, a);
+			i++;
+		}
+		return accumulator;
+	};
+```
+
+使用如下方法调用这两个函数：
+
+```javascript
+var data = [1, 1, 3, 5, 5];
+var sum = function(x, y) { return x + y; };
+var square = function(x) { return x * x; };
+var mean = reduce(data, sum) / data.length;
+var deviations = map(data, function(x) { return x - mean; });
+var stddev = Math.sqrt(reduce(map(deviations, square), sum) / (data.length - 1));
+```
 
 ### 8.8.2 高阶函数
+所谓高阶函数就是操作函数的函数，它接收一个或多个函数作为参数，并返回一个新函数，如：
+
+```javascript
+function not(f) {
+	return function() {
+		var result = f.apply(this, arguments);
+		return !result;
+	};
+}
+
+var even = function(x) {
+	return x % 2 === 0;
+};
+
+var odd = not(even);
+[1, 1, 3, 5, 5].every(odd);		// true
+```
+
+上面的not()函数就是一个高阶函数，因为它接收一个函数作为参数，并返回一个新函数。下面的例子：
+
+```javascript
+function mapper(f) {
+	return function(a) { return map(a, f); };
+}
+
+var increment = function(x) { return x + 1; };
+var incrementer = mapper(increment);
+incrementer([1, 2, 3]);				// [2, 3, 4]
+```
+
+下面是一个更常见的例子，它接收两个函数f()和g()，并返回一个新的函数用以计算f(g())：
+
+```javascript
+function compose(f, g) {
+	return function() {
+		return f.call(this, g.apply(this, arguments));
+	};
+}
+
+var square = function(x) { return x * x; };
+var sum = function(x, y) { return x + y; };
+var squareofsum = compose(square, sum);
+squareofsum(2, 3);							// 25
+```
 
 ### 8.8.3 不完全函数
+函数f()的bind()方法返回一个新函数，给新函数传入特定的上下文和一组指定的参数，然后调用函数f()。bind()方法只是将实参放在左侧，传入bind()的实参都是放在传入原始函数的实参列表开始的位置，但有时期望将传入bind()的实参放在右侧：
+
+```javascript
+function array(a, n) { return Array.prototype.slice.call(a, n || 0); }
+function partialLeft(f /* , ... */) {
+	var args = arguments;
+	return function() {
+		var a = array(args, 1);
+		a = a.concat(array(arguments));
+		return f.apply(this, a);
+	};
+}
+
+function partialRight(f /*, ... */) {
+	var args = arguments;
+	return function() {
+		var a = array(arguments);
+		a = a.concat(array(args, 1));
+		return f.apply(this, a);
+	};
+}
+
+function partial(f /*, ... */) {
+	var args = arguments;
+	return function() {
+		var a = array(args, 1);
+		var i = 0, j = 0;
+		for (; i < a.length; i++)
+			if (a[i] === undefined) a[i] = arguments[j++];
+		a = a.concat(array(arguments, j));
+		return f.apply(this, a);
+	};
+}
+
+var f = function(x, y, z) { return x * (y - z); };
+partialLeft(f, 2)(3, 4);			// -2 = 2 * (3 - 4)绑定第一个参数
+partialRight(f, 2)(3, 4);			// 6 = 3 * (4 - 2)绑定最后一个参数
+partial(f, undefined, 2)(3, 4);		// -6 = 3 * (2 - 4)绑定中间的实参
+```
 
 ### 8.8.4 记忆
 
