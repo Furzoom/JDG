@@ -885,11 +885,42 @@ partialRight(f, 2)(3, 4);			// 6 = 3 * (4 - 2)绑定最后一个参数
 partial(f, undefined, 2)(3, 4);		// -6 = 3 * (2 - 4)绑定中间的实参
 ```
 
+利用这种不完全函数的编程技巧，可以编写一些有意思的代码，如：
+
+```javascript
+var increment = partialLeft(sum, 1);
+var cuberoot = partialRight(Math.pow, 1/3);
+String.prototype.first = partial(String.prototype.charAt, 0);
+String.prototype.last = partial(String.prototype.substr, -1, 1);
+
+var not = partialLeft(compose, function(x) { return !x; });
+var even = function(x) { return x % 2 === 0; };
+var odd = not(even);
+var isNamber = not(isNaN);
+```
+
 ### 8.8.4 记忆
+在前面的8.4.1中定义了一个阶乘函数，这可以将上次的计算结果缓存起来，在函数编程中，称为为记忆(memorization)。下面的memorize()接收一个函数作为实参，并返回带有记忆能力的函数。
 
+```javascript
+function memorize(f) {
+	var cache = [];
+	return function() {
+		var key = arguments.length + Array.prototype.join.call(arguments, ",");
+		if (key in cache) return cache[key];
+		else return cache[key] = f.apply(this, arguments);
+	};
+}
 
+function gcd(a, b) {
+	var t;
+	if (a < b) t = b, b = a, a = t;
+	while(b != 0) t = b, b = a % b, a = t;
+	return a;
+}
 
-
-
+var gcdmemo = memorize(gcd);
+gcdmemo(85, 187);				// 17
+```
 
 Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
