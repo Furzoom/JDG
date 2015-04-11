@@ -487,6 +487,7 @@ Object.defineProperty(Object.prototype,
 		}
 	}
 );
+```
 
 ## 6.8 对象的三个属性
 每一个对象都有与之相关的原型(prototype)、类(class)和可扩展性(extensible attribute)。
