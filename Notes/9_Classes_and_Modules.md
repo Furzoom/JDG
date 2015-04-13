@@ -813,14 +813,204 @@ var NonNullSetj = (function() {
 可以利用组合的原理定义一个新的集合实现，它包装了另外一个集合对象，在将受限制的成员过滤掉之后会用到这个集合对象。
 
 ```javascript
+var FilteredSet = Set.extend(
+	function FilteredSet(set, filter) { // constructor function
+		this.set = set;
+		this.filter = filter;
+	},
+	{
+		add: function() {
+			if (this.filter) {
+				for (var i = 0; i < arguments.length; i ++) {
+					var v = arguments[i];
+					if (!this.filter(v))
+						throw new Error("FilteredSet: value " + v +
+										" rejected by filter");
+				}
+			}
+			this.set.add.apply(this.set, arguments);
+			return this;
+		},
+		remove: function() {
+			this.set.remove.apply(this.set, arguments);
+			return this;
+		},
+		contains: function(v) { return this.set.contains(v); },
+		size: function() { return this.set.size(); },
+		foreach: function(f, c) { this.set.foreach(f, c); }
+});
+```
 
+上面使用组合的一个好处是，只须创建一个单独的FilteredSet子类即可。如：
+
+```javascript
+var s = new FilteredSet(new Set(), function(x) { return x !== null; });
+var t = new FilteredSet(s, function(x) { return !(x instanceof Set); };
 ```
 
 ### 9.7.4 类的层次结构和抽象类
+上节给出组合优于继承的原则，但为了将这条原则阐述清楚，创建了Set的子类。这样做的原因是最终得到的类是Set的实例，它会从Set继承有用的辅助方法，比如toString()和equals()。尽管这是一个很实际的原因，但不用创建类似Set类这种具体类的子类也可以很好的用组合来实现范围。
+
+假定定义了一个AbstractSet类，其中定义了一些辅助方法比如toString()，但并没有实现诸如foreach()的核心依法。这样，实现的Set、SingletonSet和FilteredSet都是这个抽象类的子类，FilteredSet和SingletonSet都不必再实现为某个不相关的类的子类了。
+
+在这个思路上进一步，定义一个层次结构的抽象的集合类。AbstractSet只定义了一个抽象方法：contains()。任何类只要声称是一个表示范围的类，就必须至少定义这个contains()方法。然后，定义AbscractSet的子类AbstractEnumerableSet。这个类增加了抽象的size()和foreach()依法，而且定义了一些有用的非抽象方法，AbstractEnumerableSet并没有定义add()和remove()方法，它只代表只读集合。SingletonSet可以实现为非抽象子类。最后定义了AbstractEnumerableSet的子类AbstractWritableSet。这个final抽象集合定义了抽象方法add()和remove()，并实现了诸如union()和intersection()非具体方法，这两个方法调用add()和remove()。AbstractWriteableSet是Set和FilteredSet类相应的父类。
+
+```javascript
+// 这个函数可以用做任何抽象方法，非常方便
+function abstractmethod() { throw new Error("abstract method"); }
+
+// class AbstractSet
+function AbstractSet() { throw new Error("Can't instantiate abstract classes"); }
+AbstractSet.prototype.contains = abstractmethod;
+
+// class NotSet
+var NotSet = AbstractSet.extend(
+	function NotSet(set) { this.set = set; },
+	{
+		contains: function(x) { return !this.set.contains(x); },
+		toString: function(x) { return "~" + this.set.toString(); },
+		equals: function(that) {
+			return that instanceof NotSet && this.set.equals(that.set);
+		}
+	}
+);
+
+// class AbstractEnumerableSet 
+var AbstractEnumerableSet = AbstractSet.extend(
+	function() { throw new Error("Can't instantiate abstract classes"); },
+	{
+		size: abstractmethod,
+		foreach: abstractmethod,
+		isEmpty: function() { return this.size() == 0; },
+		toString: function() {
+			var s = "{", i = 0;
+			this.foreach(function(v) {
+				if (i ++ > 0) s += ", ";
+				s += v;
+			});
+			return s + "}";
+		},
+		toLocaleString: function() {
+			var s = "{", i = 0;
+			this.foreach(function(v) {
+				if (i ++ > 0) s += ", ";
+				if (v == null) s += v;
+				else s += v.toLocaleString();
+			});
+			return s + "}";
+		},
+		toArray: function() {
+			var a = [];
+			this.foreach(function(v) { a.push(v); });
+			return s;
+		},
+		equals: function(that) {
+			if (!(that instanceof AbstractEnumerableSet)) reutrn false;
+			if (this.size() != that.size()) return false;
+			try {
+				this.foreach(function(v) { if (!that.contains(v)) throw false; });
+				return true;
+			} catch (x) {
+				if (x === false) return false;
+				throw x;
+			}
+		}
+});
+
+// class SingletonSet
+var SingletonSet = AbstractEnumerableSet.extend(
+	function SingletonSet(member) { this.member = member; },
+	{
+		contains: function(x) { return x === this.member; },
+		size: function() { return 1;},
+		foreach: function(f, ctx) { f.call(ctx, this.member); }
+	}
+);
+
+// class AbstractWritableSet
+var AbstractWritableSet = AbstractEnumerableSet.extend(
+	function() { throw new Error("Can't instantiate abstract classes"); },
+	{
+		add: abstractmethod,
+		remove: abstractmethod,
+		union: function(that) {
+			var self = this;
+			that.foreach(function(v) { self.add(v); });
+			return this;
+		},
+		intersection: function(that) {
+			var self = this;
+			this.foreach(function(v) { if (!that.contains(v)) self.remove(v); });
+			return this;
+		},
+		difference: function(that) {
+			var self = this;
+			that.foreach(function(v) { self.remove(v); });
+			return this;
+		}
+});
+
+// class ArraySet
+var ArraySet = AbstractWritableSet.extend(
+	function ArraySet() {
+		this.values = [];
+		this.add.apply(this, arguments);
+	},
+	{
+		contains: function(v) { return this.values.indexOf(v) != -1; },
+		size: function() { return this.values.length; },
+		foreach: function(f, c) { this.values.forEach(f, c); },
+		add: function() {
+			for (var i = 0; i < arguments.length; i ++) {
+				var arg = arguments[i];
+				if (!this.contains(arg)) this.values.push(arg);
+			}
+			return this;
+		},
+		remove: function() {
+			for (var i = 0; i < arguments.length; i ++) {
+				var p = this.values.indexOf(arguments[i]);
+				if (p == -1) continue;
+				this.values.splice(p, 1);
+			}
+			return this;
+		}
+	}
+);
+```
 
 ## 9.8 ECMAScript 5中的类
+ECMAScript 5给属性特性增加了方法支持，而且增加了对象可扩展性的限制。
 
 ### 9.8.1 让属性不可枚举
+ECMAScript 5通过设置属性为不可枚举来让属性不会遍历到。如：
+
+```javascript
+// 将代码包装在一个匿名函数中，这样定义的变量就在这个函数作用域内
+(function() {
+	Object.defineProperty(Object.prototype, "objectId", {
+							get: idGetter,
+							enumerable: false,
+							configurable: false
+						});
+						
+	function idGetter() {
+		if (!(idprop in this)) {
+			if (!Object.isExtensible(this))
+				throw Error("Can't define id for nonextensible objects");
+			Object.defineProperty(this, idprop, {
+									value: nextid++,
+									writable: false,
+									enumerable: false,
+									configurable: false
+								});
+		}
+		return this[idprop];
+	};
+	var idprop = "|**objectId**|";
+	var nextid = 1;
+}());
+```
 
 ### 9.8.2 定义不可变的类
 
