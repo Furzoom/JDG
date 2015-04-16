@@ -1244,18 +1244,101 @@ StringSet.prototype = Object.create(AbstractEnumerableSet.prototype, {
 模块化的目标是支持大规模的程序开发，处理分散源中代码的组装，并且能让代码正确运行。为了做到这一点，不同的模块必须避免修改全局执行上下文，因此后续模块应当在它们所期望运行的原始上下文中执行。这意味着模块应当尽可能少地定义全局标识。理想的状况是，所有模块都不应当定义超过一个全书标识。
 
 ### 9.9.1 用做命名空间的对象
-在模块创建过程中避免污染全局变量的一种方法是使用一个对象作为命名空间。它将函数和值作为命名空间对象属性存储起来，而不是定义全局函数和变量。
+在模块创建过程中避免污染全局变量的一种方法是使用一个对象作为命名空间。它将函数和值作为命名空间对象属性存储起来，而不是定义全局函数和变量。如Set类，它定义一个全局构造函数Set()。然后给这个类定义了很多实例方法，但将这些实例方法存储为Set.prototype的属性，因此这些方法不是全局的。
+
+基于这种保持干净的全局命名空间的观点，一种更好的做法是将集合类定义为一个单独的全局对象：
 
 ```javascript
+var sets = {};
+```
 
+这个sets对象是模块的命名空间，并且将每个集合类都定义为这个对象的属性：
+
+```javascript
+sets.SingletonSet = sets.AbstractEnumerableSet.extend(...);
+```
+
+如果要使用这样定义的类，需要通过命名空间来调用所需的构造函数：
+
+```javascript
+var s = new sets.SingletonSet(1);
+```
+
+模块的作者并不知道他的模块会和哪些其他模块一起工作，因此尤为注意这种命名空间的用法带的命名冲突，然而，使用这个模块的开发者是知道它用了哪些模块，用到了哪些名字的。可以这样使用将名字导入：
+
+```javascript
+var Set = sets.Set;
+var s = new Set(1, 2, 3);
+```
 
 ### 9.9.2 作为私有命名空间的函数
+模块对外导出一些公用API，这些API提供给其他程序员使用的，它包括函数、类、属性和方法。但模块的实现往往需要一些额外的辅助函数和方法，这些函数和方法并不需要在模块外部可见。可以通过将模块定义在某个函数的内部来实现。如：
 
+```javascript
+var Set = (function invocation() {
+	function Set() {
+		this.values = {};
+		this.n = 0;
+		this.add.apply(this, arguments);
+	}
+	Set.prototype.contains = function(value) {
+		return this.values.hasOwnProperty(v2s(value));
+	};
+	Set.prototype.size = function() { return this.n; };
+	Set.prototype.add = function() { /*...*/ };
+	Set.prototype.remove = function() { /*...*/ };
+	Set.prototype.foreach = function(f, context) { /*...*/ };
+	function v2s(val) { /*...*/ };
+	function objectId(o) { /*...*/ };
+	var nextId = 1;
+	return Set;
+}());
+```
 
+注意，这里使用了立即执行的匿名函数，这在Javascript中是一种惯用法。如果想让代码在一个私有命名空间中运行，只须给这段代码加上前缀`(function(){`和后缀`}())`。一旦将模块代码封装进一个函数，就需要一些方法导出共公用API，以便在模块函数的外部调用它们。如上面的代码返回构造函数，这个构造函数随后赋值给一个全局变量。将值返回已经清楚地表明API已经导出在函数作用域之外。如果模块API包含多个单元，则它可以返回命名空间对象。如：
 
+```javascript
+var collections;
+if(!collections) collections = {};
+collections.sets = (function namespace() {
+	/* ... */
+	return {
+		AbstractSet: AbstractSet,
+		NotSet: NotSet,
+		AbstractEnumerableSet: AbstractEnumerableSet,
+		SingletonSet: SingletonSet,
+		AbstractWritableSet: AbstractWritableSet,
+		ArraySet: ArraySet
+	};
+}());
+```
 
+另外一种类似的技术是将模块函数当做构造函数，通过new来调用，通过将它们赋值给this来将其导出：
 
+```javascript
+var collections;
+if (!collections) collections = {};
+collections.sets = (new function namespace() {
+	/* ... */
+	this.AbstractSet = AbstractSet;
+	this.NotSet = NotSet;
+}());
+```
 
+作为一种替代方案，如果已经定义了全局命名空间对象，这个模块函数可以直接设置那个对象的属性，不用返回任何内容：
 
+```javascript
+var collections;
+if (!collections) collections = {};
+collections.sets = {};
+(function namespace() {
+	/* ... */
+	collections.sets.AbstractSet = AbstractSet;
+	collections.sets.NotSet = NotSet;
+	// no return statement
+}());
+```
+
+有些框架实现了模块加载功能，其中包括其他一些导出模块API的方法。
 
 Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
