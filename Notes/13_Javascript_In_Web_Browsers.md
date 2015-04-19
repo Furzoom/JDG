@@ -94,10 +94,8 @@ Window对象的onload处理程序是最重要的事件处理程序之一。当�
 </html>
 ```
 
-
-
-
 ### 13.1.1 Web文档里的Javascript
+Javascript程序可以通过Document对象和它包含的Element对象遍历和管理文档内容。它可以通过操纵CSS样式和类，修改文档内容的呈现。并且可以通过注册适当的事件处理程序来定义文档元素的行为。内容、呈现和行为的组合，叫做动态DHTML或DHTML，会在后续文章进行介绍。
 
 ### 13.1.2 Web应用里的Javascript
 
