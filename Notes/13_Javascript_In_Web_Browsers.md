@@ -237,11 +237,76 @@ What time is it?
 #### 书签
 在Web浏览器中，书签就是一个保存起来的URL。如果书签是javascript:URL，那么保存的就是一小段脚本，叫做bookmarklet。bookmarklet是一个小型程序，很容易就可以从浏览器的菜单或工具栏里启动。bookmarklet里的代码执行起来就像页面上的脚本一样，可以查询和设置文档的内容、呈现和行为。只要书签不返回值，它就可以操作当前显示的任何文档，而不把文档替换成新的内容。
 
+考虑下面的<a>标签里的Javascript:URL。单击链接会打开一个简单的Javascript表达式计算器，它允许在页面环境中计算表达式和执行语句：
 
+```javascript
+<a href="javascript:
+var e = '', r = '';
+do{
+e = prompt('Expression: ' + e + '\n' + r + '\n', e);
+try{ r = 'Result: ' + eval(e); }
+catch(ex) { r = ex; }
+} while(e);
+void 0;
+">Javascript Evaluator</a>
+```
+
+注意即便这个Javascript URL是写成多行的，HTML解析仍将它作为单独的一行对待，并且其中的单行//注释也是无效的。代码是双引号中的HTML属性的一部分，所有代码不可以包含任何双引号。
+
+在开发时，把这样的链接硬编码在页面中是有用的，而把它另存为可以在任何页面上运行的书签，就更有用了。
 
 ## 13.3 Javascript程序的执行
+客户端Javascript程序没有严格的定义，可以说Javascript程序是由Web页面中所包含的所有Javascript代码(内联脚本、HTML事件处理程序和javascript:URL)和通过<script>标签的src属性引用的外部Javascript代码组成。所有这些单独的代码共用同一个全局Window对象。这意味着它们都可以看到相同的Document对象，可以共享相同的全局函数和变量的集合；如果一个脚本定义了新的全局变量或函数，那么这个变量或函数会在脚本执行之后对任意Javascript代码可见。
+
+如果Web页面包含一个嵌入的窗体(通常使用<iframe>元素)，嵌入文档中的Javascript代码和被嵌入文档里的Javascript代码会有不同的全局对象，它可以当做一个单独的Javascript程序。但是，没有严格的关于Javascript程序范围的定义。如果外面和里面的文档来自于同一个服务器，那么两个文档中的代码就可以进行交互，并且如果愿意，就可以把它们当做是同一个程序的两个相互作用的部分。
+
+Javascript程序的执行有两个阶段，在第一阶段，载入文档内容，并执行<script>元素里的代码(包括内联脚本和外部脚本)。脚本通常会按它们在文档里的出现顺序执行。所有脚本里的Javascript代码是从上往下，按照它在条件、循环以及其他控制语句中的出现顺序执行。
+
+当文档载入完成，并且所有脚本执行完成后，Javascript执行就进入它的第二阶段。这个阶段是异步的，而且由事件驱动的。在事件驱动阶段，Web浏览器调用事件处理程序函数，来响应异步发生的事件。调用事件处理程序通常是响应用户输入。但是，还可以由网络驱动、运行时间或者Javascript代码中的错误来触发。嵌入在Web页面里的Javascript:URL也可以被当做是一种事件处理程序，因为直到用户通过单击链接或提交表彰来激活之后它们才会有效果。
+
+事件驱动阶段里发生的第一个事件是load事件，指示文档已经完全载入，并可以操作。Javascript程序经常用这个事件来触发或发送消息。经常看到一些定义函数的脚本程序，除了定义一个onload事件自带程序函数处不做其他操作，这个函数会在脚本事件驱动阶段开始时被load事件触发。正是这个onload事件会对文档进行操作，并做程序想做的任何事。Javascript程序的载入阶段是相对短暂的，通常只持续1~2秒。在文档载入完成之后，只要Web浏览器显示文档，事件驱动阶段就会一直持续下去。因为这个阶段是异步的和事件驱动的，所以可能有长时间处于不活动状态，没有Javascript被执行，被用户或网络事件触发的活动打断。
+
+核心Javascript和客户端Javascript都有一个单线程执行模型。脚本和事件处理程序在同一个时间只能执行一个，没有并发性。这保持了Javascript编程的简单性。
 
 ### 13.3.1 同步、异步和延迟的脚本
+Javascript第一次添加到Web浏览器时，还没有API可以用来遍历和操作文档的结构和内容。当文档还在载入时，Javascript影响文档内容的唯一方法是快速生成内容。它使用document.write()方法完成上述任务。
+
+```javascript
+<h1>Table of Factorials</h1>
+<script>
+function factorial(n) {
+	if (n <= 1) return n;
+	else return n * factorial(n - 1);
+}
+document.write("<table>");
+document.write("<tr><th>n</th><th>n!</th></tr>");
+for (var i = 1; i <= 10; i ++) {
+	document.write("<tr><td>" + i + "</td><td>" + factorial(i) + "</td></tr>");
+}
+document.write("</table>");
+document.write("Generated at " + new Date());
+</script>
+```
+
+当脚本把文本传递给document.write()时，这个文本被添加到文档输入流中，HTML解析器会在当前位置创建一个文本节点，将文本插入文本节点后面。如今并不推荐使用document.write()，但在某些场景下它有着重要的用途。当HTML解析器遇到<script>元素时，它默认必须先执行脚本，然后再恢复文档的解析和渲染。这对于内联脚本没什么问题，但如果脚本源代码是一个由src属性指定的外部文件，这意味着脚本后面的文档部分在下载和执行脚本之前，都不会出现在浏览器中。
+
+脚本的执行只在默认情况下是同步和阻塞的。<script>标签可以有defer和async属性，这可以改变脚本执行方式。这些都是布尔属性，没有值；只需要出现在<script>标签里即可。HTML5说这些属性只在和src属性联合使用时才有效，但有些浏览器还支持延迟的内联脚本：
+
+```javascript
+<script defer src="deferred.js"></script>
+<script async src="async.js"></script>
+```
+
+defer和async属性都像在告诉浏览器链接进来的不会使用document.wirte()，也不会生成文档内容。因此浏览器可以在下载脚本时继续解析和渲染文档。defer属性使得浏览器延迟脚本的执行。直到文档的载入和解析完成，并可以操作。async属性使得浏览器可以尽快地执行脚本。而不用在下载脚本时阻塞文档解析。如果<script>标签同时有两个属性，同时支持两者的浏览吕会遵从async属性并忽略defer属性。
+
+注意，延迟的脚本会按它们在文档里的出现顺序执行。而异步脚本在它们载入后执行，这意味着它们可能会无序执行。
+
+```javascript
+// 异步载入并执行一个指定的URL中的脚本
+function loadasync(url) {
+	var head = document.getElementsByTagName("head")[0];	// 得到<head>元素
+	var s = document.createElement("script");				// 创建一个<script>元素
+	s.
 
 ### 13.3.2 事件驱动的Javascript
 
