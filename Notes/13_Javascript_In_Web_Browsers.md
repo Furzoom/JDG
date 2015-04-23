@@ -306,27 +306,147 @@ defer和async属性都像在告诉浏览器链接进来的不会使用document.w
 function loadasync(url) {
 	var head = document.getElementsByTagName("head")[0];	// 得到<head>元素
 	var s = document.createElement("script");				// 创建一个<script>元素
-	s.
+	s.src = url;
+	head.appendChild(s);
+}
+```
+
+注意这个loadasync()函数会动态地载入脚本，脚本载入到文档中，成为正在执行的Javascript程序的一部分，既不是通过Web页面内联包含，也不是来自Web页面的静态引用。
 
 ### 13.3.2 事件驱动的Javascript
+上面展示的古老的Javascript程序是同步载入的程序：在页面载入时开始执行，生成一些输出，然后结束。这种类型的程序在今天已经不常见了。反之，通过注册事件处理程序函数来写程序。在注册的程序发生时异步调用这些函数。想要为常用操作启用键盘快捷键的Web应用会为键盘事件注册事件处理程序。甚至非交互的程序也使用事件。如要写一个分析文档结构并自动生成文档内容的表格程序。程序不需要用户输入事件的事件处理程序，但它还是会注册onload事件处理程序，这样就可以知道文档在什么时候载入完成并可以生成内容表格了。
+
+事件都有名字，如click、change、load、mouseover、keypress或readystatechange，指示发生的事件的通用类型。事件还有目标，它是一个对象，并且事件就是在它上面发生的。事件必须同时指定事件类型和目标。
+
+如果要程序响应一个事件，写一个函数，叫做事件处理程序。然后注册这个函数，这样它就会在事件发生时调用它。这可以通过HTML属性来完成，但是不鼓励将Javascript代码和HTML内容混淆在一起。反之，注册事件处理程序最简单的方法是把Javascript函数赋值给目标对象的属性，如：
+
+```javascript
+window.onload = function() { ... };
+document.getElementById("button1").onclick = function() { ... };
+function handleResponse() { ... }
+request.onreadystatechange = handleResponse;
+```
+
+按照约定，事件处理程序的属性的名字是以on开始，后面跟着事件的名字。还在注意上面的代码中没有函数调用：只是把函数本身赋值给这些属性。浏览器会在事件发生时执行调用。用事件进行异步编程会经常涉及嵌套函数，也经常要在函数的函数里定义函数。
+
+对于大部分浏览器中的大部分事件来说，会把一个对象传递给事件处理程序作为参数，那个对象的属性提供了事件的详细信息。如，传递给单击事件的对象，会有一个属性说明鼠标的哪个按钮被单击。事件处理程序的返回值有时用来指示函数是否充分处理了事件，以及阻止浏览器执行它默认会进行的各种操作。
+
+有些事件的目标是文档元素，它们会经常往上传递给文档树，这个过程叫做冒泡。如，如果用户在<button>元素上单击鼠标，单击事件就会在按钮上触发。如果注册在按钮上的函数没有处理该事件，事件会冒泡到按钮嵌套的容器元素，这样，任何注册在容器元素上的单击事件都会调用。
+
+如果需要为一个事件注册多个事件处理程序函数，或者如果想要写一个可以安全注册事件处理程序的代码模块，就算另一个模块已经为相同的目标上的相同的事件注册了一个处理程序，也需要用到另一种事件处理程序注册技术。大部分可以成为事件目标的对象都有一个叫做addEventListener()的方法，允许注册多个监听器：
+
+```javascript
+window.addEventListener("load", function() { ... }, false};
+request.addEventListener("readystatechange", function() { ... }, false};
+```
+
+在IE9及以上版本中实现了addEventListener()，在之前的版本中需要使用attachEvent()：
+
+```javascript
+window.attachEvent("onload", function() { ... });
+```
+
+客户端Javascript程序还使用异步通知类型，这些类型往往不是事件。如果设置Window对象的onerror属性为一个函数，会在发生Javascript错误时调用函数。还有，setTimeout()和setInterval()函数会在指定的一段时间之后触发指定函数的调用。传递给setTimeout()的函数和真实事件处理程序的注册不同，它们通常叫做回调逻辑而不是处理程序，但它们和事件处理程序一样，也是异步的。
+
+```javascript
+function onLoad(f) {
+	if (onLoad.loaded)
+		window.setTimeout(f, 0);
+	else if (window.addEventListener)
+		window.addEventListener("load", f, false);
+	else if (window.attachEvent)
+		window.attachEvent("onload", f); // before IE8
+}
+
+onLoad.loaded = false;
+onLoad(function() { onLoad.loaded = true;});
+```
 
 ### 13.3.3 客户端Javascript线程模型
+Javascript语言核心并不包含任何线程机制，并且客户端Javascript传统上也没有定义任何线程机制。HTML5定义了一种作为后台线程的"WebWorker"，但是客户端Javascript还像严格的单线程一样工作。甚至当可能并发执行的时候，客户端Javascript也不会知晓是否真的有并行逻辑的执行。
+
+单线程执行是为了让编程更加简单。编写代码时可以确保两个事件处理程序不会同一时刻运行，操作文档内容时也不必担心会有其他纯种试图同时修改文档，并且永远不需要在写Javascript代码的时候担心锁、死锁和竟态条件。
+
+单线程执行意味着浏览器必须在脚本和事件语句处理程序执行的时候停止响应用户输入。这为Javascript程序员带来了负担，它意味着Javascript脚本和事件处理程序不能运行太长时间。如果一个脚本执行计算密集的任务，它将会给文档载入带来延迟，而用户无法在脚本完成前看到文档内容。如果事件自带程序执行计算密集的任务，浏览器可能变得无法响应，可能会导致用户认为浏览器崩溃了。
+
+如果应用程序不得不执行太多的计算而导致明显的延迟，应该允许文档在执行这个计算之前完全载入，并确保能够告知用户计算正在进行并且浏览器没有挂起。如果可能将计算分解为离散的子任务，可以使用setTimeout()和setInterval()方法在后台运行子任务，同时更新一个进行指示器向用户显示反馈。
 
 ### 13.3.4 客户端Javascript时间线
+Javascript程序执行的时间线：
+* Web浏览器创建Document对象，并且开始解析Web页面，解析HTML元素和它们的文本内容后添加Element对象和Test节点到文档中。在这个阶段document.readyState属性的值是loading。
+* 当HTML解析器遇到没有async和defer属性的<script>元素时，它把这些元素添加到文档中，然后执行行内或外部脚本。这些脚本会同步执行，并且在脚本下载和执行时解析器会暂停。这样脚本就可以用document.write()来把文本插入到输入流中。解析器恢复时这些文本会成为文档的一部分。同步脚本经常简单定义函数和注册后面使用的注册事件处理程序，但它们可以遍历和操作文档树，因为在它们执行时已经存在了。这样，同步脚本可以看到它自己的<script>元素和它们之前的文档内容。
+* 当解析器遇到设置了async属性的<script>元素时，它开始下载脚本文本，并继续解析文档。脚本会在它下载写成后尽快执行。但是解析器没有停下来等它下载。异步脚本禁止使用document.write()方法。它们可以看到自己的<script>元素和它之前的所有文档元素，并且可能或干脆不可能访问其他的文档内容。
+* 当文档完成解析，document.readyState属性变成interactive。
+* 所有有defer属性的脚本，会按它们在文档里的出现顺序执行。异步脚本可能也会在这个时间执行。延迟脚本能访问完整的文档树，禁止使用document.write()方法。
+* 浏览器在Document对象上触发DOMContentLoaded事件。这标志着程序执行从同步脚本执行阶段转换到了异步事件驱动阶段。但要注意，这时可能还有异步脚本没有执行完成。
+* 这时，文档已经完全解析完成，但是浏览器可能还在等待其他内容载入，如图片。当所有这些内容完成转入时，并且所有异步脚本完成载入和执行，document.readyState属性改变为complete，Web浏览器触发Window对象的上的load事件。
+* 从此刻起，会调用异步事件，以异步响应用户输入事件、网络事件、计时器过期等。
 
 ## 13.4 兼容性和互用性
+Web浏览器是Web应用的操作系统，但是Web是一个存在各种差异性的环境，Web文档和应用会在不同操作系统的不同开发商的不同时代的浏览器上查看和运行。写一个健壮的客户端Javascript程序并能正确地运行在这么多类型的平台上，的确是一种挑战。
+
+客户端Javascript兼容必和交互性的问题可以归纳为以下三类：
+> 演化
+>> Web平台一直在演变和发展当中。一个标准规范会倡导一个新的特性或API。
+> 未实现
+>> 同时实现一个功能在不同的浏览器之间有很大的差别。
+> bug
+>> 每个浏览器都有bug，并且没有按照规范准确地实现所有的客户端Javascript API。
 
 ### 13.4.1 处理兼容性问题的类库
+处理不兼容问题其中一种最简单的方法是使用类库。如JQuery。
 
 ### 13.4.2 分组浏览器支持
+分级浏览器是由Yahoo提出的一种测试技术。从某种维度对浏览器厂商/版本/操作系统谈何进行分级。A级要通过所有功能测试用例。C级只需在HTML完整情况下可用即可，其他浏览器称为X级。
 
 ### 13.4.3 功能测试
+功能测试(capability testing)是解决不兼容性问题的一种强大技术。如果你想试用某个功能，但又不清楚这个功能是否在所有的浏览器中有比较好的兼容性，则需要在脚本中添加相应的代码来检测是否在浏览器中支持该功能。如：
+
+```javascript
+if (element.addEventListener) {
+	element.addEventListener("keydown", handler, false);
+	element.addEventListener("keypress", handler, false);
+}
+else if (element.attachEvent) {
+	element.attachEvent("onkeydown", handler);
+	element.attachEvent("onkeypress", handler);
+}
+else {
+	element.onkeydown = element.onkeypress = handler;
+}
+```
 
 ### 13.4.4 怪异模式和标准模式
+Microsoft在发布IE6的时候，增加了IE5里没有的很多CSS标准特性。但为了确保与已有Web内容的后向兼容性，它定义了两种不同的渲染模式。在标准模式和CSS兼容模式中浏览器要遵循CSS标准，在怪异模式中，浏览器表现的和IE4和IE5中的怪异非标准模式一样。渲染模式的选择依赖于HTML文件顶部的DOCTYPE声明。
 
 ### 13.4.5 浏览器测试
+功能测试非常适用于检测大型功能领域的支持，比如可以使用这种方法来确定浏览器是否支持W3C事件处理模型还是IE的事件处理模型。另外，有时候可能会需要在某种浏览器中解决个别的bug或难题，但却没有太好的方法来检测bug的存在性。这时需要针对某个平台建立解决方案。
+
+在客户端Javascript中检测浏览器类型和版本的方法就是使用Navigator对象，确定当前浏览器的厂商和版本的代码通常叫做浏览器嗅控器或者客户端嗅探器。
+
+客户端嗅探也可以在服务器端完成，Web服务器根据User-Agent头部可以有选择地返回特定的Javascript代码给客户端。
 
 ### 13.4.6 Internet Explorer里的条件注释
+实际上，客户端的Javascript编程中的很多不兼容性都是针对IE的。也就是说，必须按照某个方式为IE编写代码，而按照另环保方式为其他的浏览器编写代码。IE支持条件注释，如：
+
+```javascript
+<!--[if IE 6]>
+This content is actually inside an HTML comment.
+It will only be displayed in IE 6.
+<![endif]-->
+
+<!--[if lte IE 7]>
+This content will only be displayed by IE 5, 6, 7 and earlier.
+lte stands for "less than or equal". You can also use "lt", "gt" and "gte".
+<![endif]-->
+
+<!--[if !IE]><-->
+This is normal HTML content, but IE will not display it
+because of the comment above and the comment below.
+<!--><![endif]-->
+
+This is normal content, displayed by all browsers.
+```
 
 ## 13.5 可访问性
 
