@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Javascript Evaluator</title>
+<script>
+var name = decodeURIComponent(window.location.search.substring(1)) || "";
+name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+document.write("Hello " + name);
+</script>
+</head>
+<body>
+<h1>output</h1>
+</body>
+</html>
