@@ -314,10 +314,84 @@ window.close();
 大多数浏览器只允许自动关闭由自己的Javascript代码创建的窗口。如果要关闭其他窗口，可以用一个对话框提示用户，要求他对关闭窗口的请求进行确认。在表示窗体而不是顶级窗口或标签页上的Window对象上执行close()方法不会有任何效果，它不能关闭一个窗体，但它可以从它包含的文档中删除iframe。
 
 ### 14.8.2 窗体之间的关系
+Window对象的方法open()返回代表新创建的窗口的Window对象。而且这个新窗口具有opener属性，该属性可以打开它的原始窗口。这样，两个窗口就可以相互引用，彼此都可以读取对方的属性或是调用对方的方法。窗体的也是这样的。
 
+任何窗口或窗体中的Javascript代码都可以将自己的窗口和窗体引用为window或self。窗体可以用parent属性引用包含它的窗口或窗体的Window对象：
+
+```javascript
+parent.history.back();
+```
+
+如果一个窗口是顶级窗口或标签，而不是窗体，那么其parent属性引用的就是这个窗口本身：
+
+```javascript
+parent == self;
+```
+
+如果一个窗体包含在另一个窗体中，而后者又包含在顶级窗口中，那么该窗体就可以使用parent。parent来引用顶级窗口。top属性是一个通用的快捷方式，无论一个窗体被嵌套了几层，它的top属性引用的都是指向包含它的顶级窗口。如果一个Window对象代表的是一个顶级窗口，那么它的top属性引用的就是窗口本身。对于那些顶级窗口的直接子窗体，top属性就等价于parent属性。
+
+parent和top属性允许脚本引用它的窗体的祖先。有不止一种方法可以引用窗口或窗体的子孙窗体。窗体是通过<iframe>元素创建的。可以用获取其他元素的方法来获取一个表示<iframe>的元素对象。假定文档里有<iframe id="f1">。那么，表示该iframe的元素对象就是：
+
+```javascript
+var iframeElement = document.getElementById("f1");
+```
+
+<iframe>元素有contentWindow属性，引用该窗体的Window对象，所以此窗体的Window对象就是：
+
+```javascript
+var childFrame = document.getElementById("f1").contentWindow;
+```
+
+可以进行反向操作，从表示窗体的Window对象来获取该窗体的<iframe>元素，用Window对象的frameElement属性。表示顶级窗口的Window对象的frameElement属性为null，窗体中的Window对象的frameElement属性不是null：
+
+```javascript
+var elt = document.getElementById("f1");
+var win = elt.contentWindow;
+win.frameElement === elt;		// true
+window.frameElement === null;	// true
+```
+
+尽管如此，通常不需要使用getElementById()方法和contentWindow属性来获取窗口中子窗体的引用。每个Window对象都有一个frames属性，它引用自身包含的窗口或窗体的子窗体。frames属性引用的是类数组对象，并可以通常数字或窗体名进行索引。要引用窗口的第一个子窗体，可以用frames[0]。要引用第二个子窗体的第三个子窗体，可以用frames[1].frames[2]。窗体里运行的代码可以用parent.frames[1]引用兄弟窗体。frames[]数组里的元素是Window对象，而不是<iframe>元素。
+
+如果指定<iframe>元素的name或id属性，那么除了用数字进行索引之外，还可以用名字来进行索引。如，frames["f1"]或frames.f1。
+
+<iframe>以及其他元素的name和ID都可以自动通常Window对象的属性来应用，而<iframe>元素和其他的元素有所不同：对于窗体来说，通过Window对象的属性引用的<iframe>是指窗体中的Window对象，而不是元素对象。也就是说，可以通常窗体的名字"f1"来代替frames.f1。实际上，HTML5规范指出frames属性是一个自引用(self-referential)的属性，就像window和self一样。而这个Window对象看起来像一个由窗体组成的数组。也就是说可以通过window[0]来获取第一个子窗体的引用，可以通过window.lenght或length查询窗体的编号。
 
 ### 14.8.2 交互窗口中的Javascript
+每个窗口和窗体都是它自身的Javascript执行上下文，以Window作为全局对象。但是如果一个窗口或窗体中的代码可以应用到其他窗口或窗体，那么一个窗口或窗体中的脚本就可以和其他窗口或窗体中的脚本进行交互。
 
+设想一个Web页面里有两个<iframe>元素，分别叫A和B，并假设这些窗体所包含的文档来自于相同的一个服务器，并且包含交互脚本。窗体A里的脚本定义了一个变量i：
 
+```javascript
+var i = 3;
+```
+
+这个变量只是全局对象的一个属性，也是Window对象的一个属性。窗体A中的代码可以用标识符i来引用变量，或者用window对象显式地引用这个变量：
+
+```javascript
+window.i;
+```
+
+由于窗体B中的脚本可以引用窗体A的Window对象，因此它也可以引用那个Window对象的属性：
+
+```javascript
+parent.A.i = 4;
+```
+
+主义函数的关键字function可以声明一个变量，就像关键字var所做的那样。如果窗体B中的脚本声明了一个函数f，这个函数在窗体B中是全局变量，并且窗体B中的代码可以用f()调用f。但是窗体A中的代码必须将f作为窗体B的Window对象的f属性来引用：
+
+```javascript
+parent.B.f();
+```
+
+如果窗体A中的代码需要很频繁地使用这个函数，则可以将这个函数赋值给窗体A中的一个变量，这样就可以经常使用这个变量来引用窗体中的函数了：
+
+```javascript
+var f = parent.B.f;
+```
+
+当采用这种方式在窗体或窗口间共享函数时，牢记记法作用域的规则非常重要。函数在定义它的作用域中执行，而不是调用它的作用域中执行。如果函数f引用了全局变量，那么将在窗体B的属性中查找这些变量，即使函数是由窗体A调用的。
+
+每个Window都有自己的原型对象，这意味着instanceof操作符不能跨窗口工作。如，当用instanceof来比较窗体B的一个字符串和窗体A的String()构造函数时，结果会为false。
 
 Author website: [furzoom](http://furzoom.com/about-us/ "Furzoom")
