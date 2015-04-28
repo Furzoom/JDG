@@ -136,10 +136,13 @@ Window对象的navigator属性引用的是包含浏览器厂商和版本信息�
 
 > appName
 >> Web浏览器的全称。在IE中，这就是"Microsoft Internet Explorer"。在Firefox中该属性就是"Netscape"。为了兼容现在的浏览器嗅探代码，其他浏览器通常也取值为"Netscape"。
+
 > appVersion
 >> 此属性通常以数字开始，并跟着包含浏览器厂商和版本信息的详细字符串。字符串前面数字通常是4.0或5.0，表示它是第4或第5代兼容的浏览器。appVersion字符串没有标准的格式，所以，没有办法直接来判断浏览器类型。
+
 > userAgent
 >> 浏览器在它的USER-AGENT HTTP头部中发送的字符串。这个属性通常包含appVersion中的所有信息，并且常常也可能包含其他的细节。和appVersion一样，它也没胡标准的格式。由于这个属性包含绝大部分信息，因此浏览器嗅探代码通常用它来嗅探。
+
 > platform
 >> 在其上运行浏览器的操作系统的字符串。
 
@@ -164,10 +167,13 @@ var browser = (function() {
 除了浏览器厂商和版本信息的属性之外，Navigator对象还包含一些杂项的属性和方法。以下是一些标准化的属性以及广泛 应用但未标准化的属性：
 > onLine
 >> navigator.onLine属性表示浏览器当前是否连接到网络。应和程序可能希望在离线状态下把状态保存在本地。
+
 > geolocation
 >> Geolocation对象定义用于确定用户地理位置信息的接口。
+
 > javaEnabled()
 >> 一个非标准的方法，当浏览器可以运行Java小程序时返回true。
+
 > cookieEnable()
 >> 非标准的方法，如果浏览器可以保存永久的cookie时，返回false。当cookie配置为视具体情况而定时可以会返回不正确的值。
 
