@@ -95,12 +95,83 @@ HTML标签是不区分大小写的，当在HTML文档中使用getElementsByTagNa
 
 给getElementsByTagName()传递通配符参数"*"将获得一个代表文档中所有元素的NodeList对象。
 
+Element类也定义getElementsByTagName()方法，其原理和Document版本的一样，但是它只选取调用该方法的元素的后代元素。要查找文档中第一个\<p>元素里面的所有\<span>元素，代码如下：
+
+```javascript
+var firstpara = document.getElementsByTagName("p")[0];
+var fitstParaSpans = firstpara.getElementsByTagName("span");
+```
+
+由于历史的原因，HTMLDocument类定义一些快捷属性来访问各种各样的节点。如images、forms和links等属性指向行为类似吟诗数组的\<img>、\<form>和\<a>元素集合。这些属性指代HTMLCollection对象，它们很像NodeList对象，但是险些之外它们还可以用元素的ID或名字来索引。
+
+HTMLDocument也定义embeds和plugins属性，它们是同义词，都是HTMLCollection类型的<embed>元素的集合。anchors是非标准属性，它指代有一个name属性的\<a>元素而并不是一个href属性。还有两个属性，它们指代特殊的单个元素而不是元素的集合。document.body是一个HTML文档的\<body>元素，document.head是\<head>元素。这些属性总是会定义：如果文档源代码未显式地地包含\<head>和\<body>元素。浏览器将隐式地创建它们。Document类的documentElement属性指代文档的根元素。在HTML文档中，它总是指代\<html>元素。
 
 ### 15.2.4 通过CSS类选取元素
+HTML元素的class属性值是一个以空格隔开的列表，可以为空或包含多个标识符。它描述一种方法来定义多组相关的文档元素：在它们的class属性中有相同标识符的任何元素属于该组的一部分，在JavaScript中class是保留字，所有客户端JavaScript使用className属性来保存HTML的class属性值。class属性通常与CSS样式表一起使用，对某组内的所有元素应用相同的样式。HTML定义了getElementsByClassName()方法，它基于其class属性值中的标识符来选取成组的文档元素。
+
+类似getElementsByTagName()，在HTML文档和HTML元素上都可以调用getElementsByClassName()，它返回值是一个实时的NodeList对象，包含文档或元素所有匹配的后代节点。getElementsByClassName()只需要一个字符串参数，但是该字符串可以由多个空格隔开的标识符组成。只有当元素的class属性值包含所有指定的标识符时才匹配，但是标识符的顺序是无关紧要的。注意，class属性和getElementsByClassName()方法的类标识符之间都是用空格隔开的，而不是逗号。如：
+
+```javascript
+var warnings = document.getElementsByClassName("warnings");
+var log = document.getElementById("log");
+var fatal = log.getElementsByClassName("fatal error");
+```
 
 ### 15.2.5 通过CSS选择器选取元素
+CSS样式表有一种非常强大的语法，那就是选择器，它用来描述文档中的若干或多组元素。元素可以用ID、标签名或类来描述：
+
+```html
+#nav			// id="nav"的元素
+div				// 所有<div>元素
+.warnings		// class属性包含warning的元素
+```
+
+更一般地，元素可以基于属性值来选取：
+
+```css
+p[lang="fr"]	// 所有使用法语的段落
+*[name="x]		// 所有包含name="x"属性的元素
+```
+
+这些基本的选择器可以组合使用：
+
+```css
+span.fatal.error		// 其class中包含"fatal"和"error"的所有<span>元素
+span[lang="fr"].warings	// 所有使用法语且其class中包含warnings的<span>元素
+```
+
+选择器可以指定文档结构：
+
+```css
+#log span				// id="log"元素的后代元素中的所有<span>元素
+#log>span				// id="log"元素的子元素中所有<span>元素
+body>h1:first-child		// <body>的子元素中的第一个<h1>元素
+```
+
+选择器可以组合起来选取多个或多组元素：
+
+```css
+div, #log				// 所有<div>元素和id="log"的元素
+```
+
+CSS选择器可以使用上述所有方法选取元素：通过ID、名字、标签名、类名。与CSS3选择器的标准化一起的另一个称做选择器API的W3C标准定义了获取匹配一个给定选择器的元素的JavaScript方法。该API的关键是Document方法querySelectorAll()。它接受包含一个CSS选择器的字符串参数，返回一个表示文档中匹配选择器的所有元素的NodeList对象。与前面描述的选取元素的方法不同，querySelectorAll()返回的NodeList对象并不是实时的：它包含在调用时刻选择器所匹配的元素，但它并不更新后续文档的变化。如果没有匹配的元素，querySelectorAll()将返回一个空的NodeList对象。如果选择器字符串非法，querySelectorAll()将抛出一个异常。
+
+Document对象还定义了querySelector()方法，它只返回第一个匹配的元素，或者没有匹配返回null。
+
+这两个方法在Element节点也有定义。在元素上调用时，指定的选择器仍然在整个文档中进行匹配，然后过滤出结果集以便它只包含指定元素的元素。
+
+注意，CSS定义了":first-line"和":first-letter"等伪元素。在CSS中，它们匹配文本节点的一部分而不是实际元素。如果和querySelectorAll()或querySelector()一起使用它们是不匹配的。而且，很多浏览器会拒绝返回":link"和":visited"等伪类匹配结果，因为这会泄露用户的浏览历史记录。
+
+querySelectorAll()是终极的选取元素的方法：它是一种非常强大的技术，通过它客户端JavaScript程序能够选择它们想要操作的元素。
 
 ### 15.2.6 document.all[]
+在DOM标准化之前，IE 4引入了document.all[]集合表示所有文档中的元素。
+
+```javascript
+document.all[0]					// 文档中第一个元素
+document.all["navbar"]			// id或name为"navbar"的元素
+document.all.tags("div")		// 文档中所有的<div>元素
+```
 
 ## 15.3 文档结构和遍历
 
