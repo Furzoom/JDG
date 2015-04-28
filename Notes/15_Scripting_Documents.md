@@ -59,7 +59,7 @@ function getElements(/* ids... */) {
 在低于IE 8版本的浏览器中，getElementById()对匹配元素的ID不区分大小写，而且也返回匹配name属性的元素。
 
 ### 15.2.2 通过名字选取元素
-HTML的name属性最初打算为表单元素分配名字，在表彰数据提交到服务器时使用该属性的值。类似id属性，name是给元素分配名字，但是区别于id，name属性的值不是必须唯一：多个元素可能有同样的名字，在表单中，单选和复选按钮通常是这种情况。而且，和id不一样的是name属性只在少数HTML元素中有效，包括表单、表单元素、<iframe>和<img>元素。
+HTML的name属性最初打算为表单元素分配名字，在表彰数据提交到服务器时使用该属性的值。类似id属性，name是给元素分配名字，但是区别于id，name属性的值不是必须唯一：多个元素可能有同样的名字，在表单中，单选和复选按钮通常是这种情况。而且，和id不一样的是name属性只在少数HTML元素中有效，包括表单、表单元素、\<iframe>和\<img>元素。
 
 基于name属性的值选取HTML元素，可以使用Document对象的getElementsByName()方法：
 
@@ -69,7 +69,7 @@ var radiobuttons = document.getElementsByName("favorite_color");
 
 getElementsByName()定义在HTMLDocument类中，而不在Document类中，所以它只针对HTML文档可用，在XML文档中不可用。它返回一个NodeList对象，后者的行为类似一个包含若干Element对象的只读数组。在IE中，getElementsByName()也返回id属性匹配指定值的元素。为了兼容，应该小心谨慎，不要将同样的字符串同时用做名字和ID。
 
-为<form>、<img>、<iframe>、<applet>、<embed>或<object>元素设置name属性值，即在Document对象中创建以此name属性值为名字的属性。
+为\<form>、\<img>、\<iframe>、\<applet>、\<embed>或\<object>元素设置name属性值，即在Document对象中创建以此name属性值为名字的属性。
 
 如果给定的名字只有一个元素，自动创建的文档属性对应的该值是元素本身。如果有多个元素，该文档属性的值是一个NodeList对象，它表现为一个包含这些元素的数组。这就意味着有些元素可以作为Document属性仅通过名字来选取：
 
@@ -79,6 +79,22 @@ var form = document.shipping_address;
 ```
 
 ### 15.2.3 通过标签选取元素
+Document对象的getElementsByTagName()方法可用来选取指定类型(标签名)的所有HTML或XML元素。如：
+
+```javascript
+var spans = document.getElementsByTagName("span");
+```
+
+类似于getElementsByName()，getElementsByTagName()返回一个NodeList对象。在NodeList中返回的元素按照在文档中的顺序排序的，所以可用如下代码选取文档中的第一个\<p>元素：
+
+```javascript
+var firstpara = document.getElementsByTagName("p")[0];
+```
+
+HTML标签是不区分大小写的，当在HTML文档中使用getElementsByTagName()时，它进行不区分大小写的标签名比较。
+
+给getElementsByTagName()传递通配符参数"*"将获得一个代表文档中所有元素的NodeList对象。
+
 
 ### 15.2.4 通过CSS类选取元素
 
