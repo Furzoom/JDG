@@ -252,7 +252,7 @@ onerror.num = 0;
 ## 14.7 作为Window对象属性的文档元素
 如果HTML文档中用id属性来为元素命名，并且如果Window对象没有此名字的属性，Window对象会赋予一个属性，它的名字是id属性的值，而它们的值指向表示文档元素的HTMLElement对象。
 
-在HTML文档中使用的id属性会成为可以被脚本访问的全局变量。如果文档包含一个<button id="okay" />元素，可以通过全局变量okay来引用此元素。
+在HTML文档中使用的id属性会成为可以被脚本访问的全局变量。如果文档包含一个\<button id="okay" />元素，可以通过全局变量okay来引用此元素。
 
 如果Window对象已经具有此名字的属性，这就不会发生。如id为history、location的元素，就不会以全局变量的形式出现，因为这些ID已经占用了。同样，如果HTML文档包含一个id为"x"的元素，并且还在代码中声明并赋值给全局变量x，那么显式声明的变量会隐藏隐式的元素变量。如果脚本中的变量声明出现在命名元素之前，那这个变量的存在就会阻止元素获取它的window属性。而如果脚本中的变量声明出现在命名元素之后，那么变量的显式赋值会覆盖该属性的隐式值。
 
@@ -265,14 +265,14 @@ onerror.num = 0;
 
 id元素在文档中必须是唯一的：两个元素不能有相同的id。但是，这对name属性无效。如果上面的元素有多于一个有相同的name属性(或者一个元素有name属性，而另一个元素有相同的值的id属性)，具有该名称的隐式全局变量会引用一个类数组对象，这个类数组对象的元素是所有命名的元素。
 
-有name或id属性的<iframe>元素是个特殊的例子，为它们隐式创建的变量不会引用表示元素自身的Element对象，而是引用表示<iframe>元素创建的嵌套浏览器窗体的Window对象。
+有name或id属性的\<iframe>元素是个特殊的例子，为它们隐式创建的变量不会引用表示元素自身的Element对象，而是引用表示\<iframe>元素创建的嵌套浏览器窗体的Window对象。
 
 ## 14.8 多窗口和窗体
 一个Web浏览器窗口可能在桌面上包含多个标签页。每一个标签页都是独立的浏览上下文(browser context)，每一个上下都有独立的Window对象，而且相互之间互不干扰。每个标签页中运行的脚本通常并不知道其他标签页的存在，更不用说和其他标签页的Window对象进行交互操作或者其文档内容了。
 
 但是窗口并不总是和其他窗口完全没有关系。一个窗口或标签页中的脚本可以打开新的窗口或标签页，当一个脚本这样做时，这样的多个窗口或窗口与另一个窗口的文档之间就可以互操作。
 
-HTML文档经常使用<iframe>来嵌套多个文档。由<iframe>所创建的嵌套浏览上下文是用它自己的Window对象所表示的。废弃的<frameset>和<frame>元素同样创建了一个嵌套的浏览上下文，每一个<frame>都由一个独立的Window对象表示。对于客户端Javascript来说，窗口、标签页、iframe和框架都是浏览上下文；对于Javascript来说，它们都是Window对象。和相互独立的标签页不同，嵌套的浏览上下文之间并不是相互独立的。在一个窗体中运行的Javascript程序总是可以看到它的祖先和子孙窗体，尽管脚本查看这些窗体中的文档受到同源策略的限制。
+HTML文档经常使用\<iframe>来嵌套多个文档。由\<iframe>所创建的嵌套浏览上下文是用它自己的Window对象所表示的。废弃的\<frameset>和\<frame>元素同样创建了一个嵌套的浏览上下文，每一个\<frame>都由一个独立的Window对象表示。对于客户端Javascript来说，窗口、标签页、iframe和框架都是浏览上下文；对于Javascript来说，它们都是Window对象。和相互独立的标签页不同，嵌套的浏览上下文之间并不是相互独立的。在一个窗体中运行的Javascript程序总是可以看到它的祖先和子孙窗体，尽管脚本查看这些窗体中的文档受到同源策略的限制。
 
 ### 14.8.1 打开和关闭窗口
 使用Window对象的open()方法可以打开一个新的浏览器窗口。Window.open()载入指定的URL到新的或已存在的窗口中，并返回代表那个窗口的Window对象。它有4个可选的参数。
@@ -347,19 +347,19 @@ parent == self;
 
 如果一个窗体包含在另一个窗体中，而后者又包含在顶级窗口中，那么该窗体就可以使用parent。parent来引用顶级窗口。top属性是一个通用的快捷方式，无论一个窗体被嵌套了几层，它的top属性引用的都是指向包含它的顶级窗口。如果一个Window对象代表的是一个顶级窗口，那么它的top属性引用的就是窗口本身。对于那些顶级窗口的直接子窗体，top属性就等价于parent属性。
 
-parent和top属性允许脚本引用它的窗体的祖先。有不止一种方法可以引用窗口或窗体的子孙窗体。窗体是通过<iframe>元素创建的。可以用获取其他元素的方法来获取一个表示<iframe>的元素对象。假定文档里有<iframe id="f1">。那么，表示该iframe的元素对象就是：
+parent和top属性允许脚本引用它的窗体的祖先。有不止一种方法可以引用窗口或窗体的子孙窗体。窗体是通过\<iframe>元素创建的。可以用获取其他元素的方法来获取一个表示\<iframe>的元素对象。假定文档里有\<iframe id="f1">。那么，表示该iframe的元素对象就是：
 
 ```javascript
 var iframeElement = document.getElementById("f1");
 ```
 
-<iframe>元素有contentWindow属性，引用该窗体的Window对象，所以此窗体的Window对象就是：
+\<iframe>元素有contentWindow属性，引用该窗体的Window对象，所以此窗体的Window对象就是：
 
 ```javascript
 var childFrame = document.getElementById("f1").contentWindow;
 ```
 
-可以进行反向操作，从表示窗体的Window对象来获取该窗体的<iframe>元素，用Window对象的frameElement属性。表示顶级窗口的Window对象的frameElement属性为null，窗体中的Window对象的frameElement属性不是null：
+可以进行反向操作，从表示窗体的Window对象来获取该窗体的\<iframe>元素，用Window对象的frameElement属性。表示顶级窗口的Window对象的frameElement属性为null，窗体中的Window对象的frameElement属性不是null：
 
 ```javascript
 var elt = document.getElementById("f1");
@@ -368,16 +368,16 @@ win.frameElement === elt;		// true
 window.frameElement === null;	// true
 ```
 
-尽管如此，通常不需要使用getElementById()方法和contentWindow属性来获取窗口中子窗体的引用。每个Window对象都有一个frames属性，它引用自身包含的窗口或窗体的子窗体。frames属性引用的是类数组对象，并可以通常数字或窗体名进行索引。要引用窗口的第一个子窗体，可以用frames[0]。要引用第二个子窗体的第三个子窗体，可以用frames[1].frames[2]。窗体里运行的代码可以用parent.frames[1]引用兄弟窗体。frames[]数组里的元素是Window对象，而不是<iframe>元素。
+尽管如此，通常不需要使用getElementById()方法和contentWindow属性来获取窗口中子窗体的引用。每个Window对象都有一个frames属性，它引用自身包含的窗口或窗体的子窗体。frames属性引用的是类数组对象，并可以通常数字或窗体名进行索引。要引用窗口的第一个子窗体，可以用frames[0]。要引用第二个子窗体的第三个子窗体，可以用frames[1].frames[2]。窗体里运行的代码可以用parent.frames[1]引用兄弟窗体。frames[]数组里的元素是Window对象，而不是\<iframe>元素。
 
-如果指定<iframe>元素的name或id属性，那么除了用数字进行索引之外，还可以用名字来进行索引。如，frames["f1"]或frames.f1。
+如果指定\<iframe>元素的name或id属性，那么除了用数字进行索引之外，还可以用名字来进行索引。如，frames["f1"]或frames.f1。
 
-<iframe>以及其他元素的name和ID都可以自动通常Window对象的属性来应用，而<iframe>元素和其他的元素有所不同：对于窗体来说，通过Window对象的属性引用的<iframe>是指窗体中的Window对象，而不是元素对象。也就是说，可以通常窗体的名字"f1"来代替frames.f1。实际上，HTML5规范指出frames属性是一个自引用(self-referential)的属性，就像window和self一样。而这个Window对象看起来像一个由窗体组成的数组。也就是说可以通过window[0]来获取第一个子窗体的引用，可以通过window.lenght或length查询窗体的编号。
+\<iframe>以及其他元素的name和ID都可以自动通常Window对象的属性来应用，而\<iframe>元素和其他的元素有所不同：对于窗体来说，通过Window对象的属性引用的\<iframe>是指窗体中的Window对象，而不是元素对象。也就是说，可以通常窗体的名字"f1"来代替frames.f1。实际上，HTML5规范指出frames属性是一个自引用(self-referential)的属性，就像window和self一样。而这个Window对象看起来像一个由窗体组成的数组。也就是说可以通过window[0]来获取第一个子窗体的引用，可以通过window.lenght或length查询窗体的编号。
 
 ### 14.8.2 交互窗口中的Javascript
 每个窗口和窗体都是它自身的Javascript执行上下文，以Window作为全局对象。但是如果一个窗口或窗体中的代码可以应用到其他窗口或窗体，那么一个窗口或窗体中的脚本就可以和其他窗口或窗体中的脚本进行交互。
 
-设想一个Web页面里有两个<iframe>元素，分别叫A和B，并假设这些窗体所包含的文档来自于相同的一个服务器，并且包含交互脚本。窗体A里的脚本定义了一个变量i：
+设想一个Web页面里有两个\<iframe>元素，分别叫A和B，并假设这些窗体所包含的文档来自于相同的一个服务器，并且包含交互脚本。窗体A里的脚本定义了一个变量i：
 
 ```javascript
 var i = 3;
