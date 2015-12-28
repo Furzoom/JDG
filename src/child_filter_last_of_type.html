@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>JQuery Basic Filter Last Child</title>
+	<title>JQuery Child Filter Last Of Type</title>
 	<style type="text/css">
 		span.solast { text-decoration: line-through;}
 	</style>
@@ -18,11 +18,11 @@
 		<span>Glen,</span>
 		<span>Tane,</span>
 		<span>Ralph,</span>
-		<span>David</span>
+		<b>David</b>
 	</div>
 	<script type="text/javascript" src="../js/jquery.min.js"></script>
 	<script type="text/javascript">
-		$('div span:last-child').css({color: 'red', fontSize: '80%'}).hover(function() {
+		$('div span:last-of-type').css({color: 'red', fontSize: '80%'}).hover(function() {
 			$(this).addClass('solast');
 		}, function() {
 			$(this).removeClass('solast');

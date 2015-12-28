@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>JQuery Basic Filter Only Of Type</title>
+	<title>JQuery Child Filter Only Child</title>
 	<style type="text/css">
 		div { width: 100px; height: 80px; margin: 5px; float: left; background-color: #b9e;}
 	</style>
@@ -13,13 +13,13 @@
 	<div>None</div>
 	<div>
 		<button>Sibling!</button>
-		<span>Sibling!</span>
-		<span>Sibling!</span>
+		<button>Sibling!</button>
+		<button>Sibling!</button>
 	</div>
 	<div><button>Sibling!</button></div>
 	<script type="text/javascript" src="../js/jquery.min.js"></script>
 	<script type="text/javascript">
-		$('button:only-of-type').text("Alone").css('border', '2px solid blue');
+		$('div button:only-child').text("Alone").css('border', '2px solid blue');
 	</script>
 </body>
 </html>
