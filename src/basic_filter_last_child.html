@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Basic Filter Last Child</title>
+	<style type="text/css">
+		span.solast { text-decoration: line-through;}
+	</style>
+</head>
+<body>
+	<div>
+		<span>Jhon,</span>
+		<span>karl,</span>
+		<span>Brandon,</span>
+		<span>Samp</span>
+	</div>
+	<div>
+		<span>Glen,</span>
+		<span>Tane,</span>
+		<span>Ralph,</span>
+		<span>David</span>
+	</div>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript">
+		$('div span:last-child').css({color: 'red', fontSize: '80%'}).hover(function() {
+			$(this).addClass('solast');
+		}, function() {
+			$(this).removeClass('solast');
+		});
+	</script>
+</body>
+</html>
