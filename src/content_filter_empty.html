@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Content Filter Empty</title>
+</head>
+<body>
+	<table border="1">
+		<tr>
+			<td>TD #0</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>TD #2</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>TD #5</td>
+		</tr>
+	</table>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript">
+		$('td:empty').text('Was Empty!').css('color', 'red');
+	</script>
+</body>
+</html>

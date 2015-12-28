@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Content Filter Has</title>
+	<style type="text/css">
+		.test {border: 1px inset red;}
+	</style>
+</head>
+<body>
+	<div>
+		<p>Hello in a paragraph.</p>
+	</div>
+	<div>Hello again! (with no paragraph)</div>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript">
+		$('div:has(p)').addClass('test');
+	</script>
+</body>
+</html>
