@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Basic Filter Only Child</title>
+	<style type="text/css">
+		div { width: 100px; height: 80px; margin: 5px; float: left; background-color: #b9e;}
+	</style>
+</head>
+<body>
+	<div><button>Sibling!</button><button>Sibling!</button></div>	
+	<div><button>Sibling!</button></div>
+	<div>None</div>
+	<div>
+		<button>Sibling!</button>
+		<button>Sibling!</button>
+		<button>Sibling!</button>
+	</div>
+	<div><button>Sibling!</button></div>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript">
+		$('div button:only-child').text("Alone").css('border', '2px solid blue');
+	</script>
+</body>
+</html>
