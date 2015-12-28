@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Basic Class Selector</title>
+	<style type="text/css">
+		* { margin: 0px; padding: 0px; border: 0px;}
+		div, span { width: 100px; height: 40px; float: left; padding: 10px; margin: 10px; background-color: #EEE;}
+	</style>
+</head>
+<body>
+	<div class="notMe">div class="notMe"</div>
+	<div class="myClass">div class="myClass"</div>
+	<span class="myClass">span class="myClass"</span>
+
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript">
+		$('.myClass').css('border', '3px solid red');
+	</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Basic Multiple Selector</title>
+	<style type="text/css">
+		* { margin: 0; padding: 0; border: 0;}
+		div, span, p {width: 150px; height: 40px; float: left; margin: 10px; padding: 10px; background-color: #EEE;}
+	</style>
+</head>
+<body>
+	<div>div</div>
+	<p class="myclass">p class="myclass"</p>
+	<p class="notmyclass">p class="nomycalss"</p>
+	<span>span</span>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript">
+		$('div, span, p.myclass').css('border', '3px solid red');
+	</script>
+</body>
+</html>

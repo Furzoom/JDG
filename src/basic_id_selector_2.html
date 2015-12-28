@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Basic Id Selector 2</title>
+	<style type="text/css">
+		* {margin: 0; padding: 0; border: 0;}
+		div { width: 200px; height: 40px; float: left; margin: 10px; padding: 10px; background-color: #EEE;}
+	</style>
+</head>
+<body>
+	<div id="myID.entry[0]">id="myID.entry[0]"</div>
+	<div id="myID.entry[1]">id="myID.entry[1]"</div>
+	<div id="myID.entry[2]">id="myID.entry[2]"</div>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript">
+		$('#myID\\.entry\\[1\\]').css('border', '3px solid red');
+	</script>
+</body>
+</html>

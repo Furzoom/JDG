@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Basic All Selector 2</title>
+	<style type="text/css">
+	* { margin: 0; padding: 0; border: 0;}
+	h3 { margin: 0px;}
+	div, span, p { width: 80px; height: 40px; float: left; padding: 10px; margin: 10px; background-color: #EEEEEE; }
+	#test { width: auto; height: auto; background-color: transparent;}
+	</style>
+</head>
+<body>
+	<div id="test">
+		<div>DIV</div>
+		<span>SPAN</span>
+		<p>P <button>Button</button></p>
+	</div>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript">
+		var elementCount = $('#test').find('*').css("border", "3px solid red").length;
+		$('body').prepend('<h3>' + elementCount + ' elements found</h3>');
+	</script>
+</body>
+</html>

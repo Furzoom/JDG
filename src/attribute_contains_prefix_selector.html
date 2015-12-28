@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Attribute Contains Prefix Selector</title>
+	<style type="text/css">
+		a { display: inline-block;}
+	</style>
+</head>
+<body>
+	<a href="#" hreflang="en">Some Text</a>
+	<a href="#" hreflang="en-UK">Some other Text</a>
+	<a href="#" hreflang="english">will not be outlined</a>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript">
+		$('a[hreflang|="en"]').css('border', '3px dotted red');
+	</script>
+</body>
+</html>
