@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery Basic Filter Eq Selector 3</title>
+    <style>
+        .foo {color: blue; background-color: yellow;}
+    </style>
+</head>
+<body>
+    <ul class="nav">
+        <li>List 1, item 1</li>
+        <li>List 1, item 2</li>
+        <li>List 1, item 3</li>
+    </ul>
+    <ul class="nav">
+        <li>List 2, item 1</li>
+        <li>List 2, item 2</li>
+        <li>List 2, item 3</li>
+    </ul>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>   
+    <script>
+        $('li:eq(-2)').addClass('foo');
+    </script>
+</body>
+</html>

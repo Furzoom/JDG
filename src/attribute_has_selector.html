@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery Attribute Has Selector</title>
+    <style type="text/stylesheet">
+
+    </style>
+</head>
+<body>
+    <div>no id</div>
+     <div id="hey">with id</div>
+     <div id="there">has an id</div>
+     <div>nope</div> 
+    <script type="text/javascript" src="../js/jquery.min.js"></script>   
+    <script>
+        $('div[id]').one('click', function() {
+            var idString = $(this).text() +  " = " + $(this).attr('id');
+            $(this).text(idString);
+        });
+    </script>
+</body>
+</html>

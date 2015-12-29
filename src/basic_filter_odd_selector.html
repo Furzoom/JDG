@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery Basic Filter Odd Selector</title>
+    <style>
+        table { background-color: #f3f7f5;}
+    </style>
+</head>
+<body>
+    <table border="1">
+        <tr>
+            <td>Row with index #0</td>
+        </tr>
+        <tr>
+            <td>Row with index #1</td>
+        </tr>
+        <tr>
+            <td>Row with index #2</td>
+        </tr>
+        <tr>
+            <td>Row with index #3</td>
+        </tr>
+    </table>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>   
+    <script>
+        $('tr:odd').css('background-color', '#bbbbff');
+    </script>
+</body>
+</html>

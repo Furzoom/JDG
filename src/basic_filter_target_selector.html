@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery Basic Filter Target Selector</title>
+    <style>
+
+    </style>
+</head>
+<body>
+    <a href="#foo">#foo</a>
+    <p id="foo">id is foo.</p>
+    <p>no id</p>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>   
+    <script>
+    $(window).load(function() {
+        $(':target').css('background-color', 'yellow');
+    });
+    </script>
+</body>
+</html>

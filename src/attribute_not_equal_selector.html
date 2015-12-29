@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery Attribute Not Equal Selector</title>
+    <style type="text/stylesheet">
+
+    </style>
+</head>
+<body>
+    <div><label><input type="radio" name="newsletter" value="Hot Fuzz"><span>name is newsletter</span></label></div>
+    <div><label><input type="radio" value="Cold Fusion"><span>no name</span></label></div>
+    <div><label><input type="radio" name="accept" value="Evil Plans"><span>name is accept</span></label></div>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>   
+    <script>
+        $('input[name!="newsletter"]').next().append(" <b>No news letter</b>");
+    </script>
+</body>
+</html>

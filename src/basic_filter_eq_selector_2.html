@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery Basic Filter Eq Selector 2</title>
+    <style>
+
+    </style>
+</head>
+<body>
+    <ul class="nav">
+        <li>List 1, item 1</li>
+        <li>List 1, item 2</li>
+        <li>List 1, item 3</li>
+    </ul> 
+    <ul class="nav">
+        <li>List 2, itme 1</li>
+        <li>List 2, itme 2</li>
+        <li>List 2, itme 3</li>
+    </ul>
+
+    <script type="text/javascript" src="../js/jquery.min.js"></script>   
+    <script>
+        $('ul.nav li:eq(1)').css('backgroundColor', '#ff0');
+        $('ul.nav').each(function(index) {
+            $(this).find('li:eq(1)').css('fontStyle', 'italic');
+        });
+        $('ul.nav li:nth-child(2)').css('color', 'red');
+    </script>
+</body>
+</html>

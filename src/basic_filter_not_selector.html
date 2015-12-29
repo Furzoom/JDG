@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery Basic Filter Not Selector</title>
+    <style>
+
+    </style>
+</head>
+<body>
+    <div><input type="checkbox" name="a"><span>Mary</span></div>
+    <div><input type="checkbox" name="b"><span>Lcm</span></div>
+    <div><input type="checkbox" name="c" checked="checked"><span>Petter</span></div>
+
+    <script type="text/javascript" src="../js/jquery.min.js"></script>   
+    <script>
+        $('input:not(:checked) + span').css('background-color', 'yellow');
+        $('input').attr('disabled', 'disabled');
+    </script>
+</body>
+</html>

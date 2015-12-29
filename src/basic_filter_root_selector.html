@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery Basic Filter Root Selector</title>
+    <style>
+        span.fot { color: red; font-size: 120%; font-style: italic;}
+    </style>
+</head>
+<body>
+    <div id="log">The root of this document is: </div>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>   
+    <script>
+        $('<b></b>').html($(':root')[0].nodeName).appendTo("#log");
+    </script>
+</body>
+</html>

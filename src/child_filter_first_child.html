@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery Child Filter First Child</title>
+    <style>
+        span { color: #008;}
+        span.sogreen{color: green;}
+    </style>
+</head>
+<body>
+    <div>
+        <span>John,</span>
+        <span>Karl,</span>
+        <span>Brandon</span>
+    </div>
+    <div>
+        <span>Glen,</span>
+        <span>Tane,</span>
+        <span>Ralph</span>
+    </div>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>   
+    <script>
+        $('div span:first-child').css('text-decoration', 'underline').hover(function(){
+            $(this).addClass('sogreen');
+        }, function() {
+            $(this).removeClass('sogreen');
+        });
+    </script>
+</body>
+</html>

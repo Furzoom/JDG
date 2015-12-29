@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery Basic filter Even Selector</title>
+    <style>
+        table { background-color: #eee;}
+    </style>
+</head>
+<body>
+    <table border="1">
+         <tr>
+             <td>Row with Index #1</td>
+         </tr>
+         <tr>
+             <td>Row with Index #2</td>
+         </tr>
+         <tr>
+             <td>Row with Index #3</td>
+         </tr>
+         <tr>
+             <td>Row with Index #4</td>
+         </tr>
+     </table> 
+    <script type="text/javascript" src="../js/jquery.min.js"></script>   
+    <script>
+        $('tr:even').css('background-color', '#bbf');
+    </script>
+</body>
+</html>
