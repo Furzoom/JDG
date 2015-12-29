@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery Form Checked 2</title>
+  <style>
+    input, label { line-height: 1.5em;}
+  </style>
+</head>
+<body>
+  <form action="#">
+    <div><input type="radio" name="fruit" id="orange" value="orange"><label for="orange">orange</label></div>
+    <div><input type="radio" name="fruit" id="apple" value="apple"><label for="apple">apple</label></div>
+    <div><input type="radio" name="fruit" id="banana" value="banana"><label for="banana">banana</label></div>
+    <div id="log"></div>
+  </form>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    $('input').on('click', function() {
+      $('#log').html($('input:checked').val() + ' is checked.');
+    });
+  </script>
+</body>
+</html>

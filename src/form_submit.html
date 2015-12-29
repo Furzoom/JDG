@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery Form Submit</title>
+  <style>
+    textarea { height: 45px;}
+  </style>
+</head>
+<body>
+  <form action="#" id="exampleTable">
+    <table border="1" cellpadding="10" align="center">
+      <tr>
+        <th>Element Type</th>
+        <th>Element</th>
+      </tr>
+      <tr>
+        <td><input type="button" value="Input Button"></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox"></td>
+      </tr>
+      <tr>
+        <td><input type="file"></td>
+      </tr>
+      <tr>
+        <td><input type="hidden"></td>
+      </tr>
+      <tr>
+        <td><input type="image"></td>
+      </tr>
+      <tr>
+        <td><input type="password"></td>
+      </tr>
+      <tr>
+        <td><input type="radio"></td>
+      </tr>
+      <tr>
+        <td><input type="reset"></td>
+      </tr>
+      <tr>
+        <td><input type="submit"></td>
+      </tr>
+      <tr>
+        <td><input type="text"></td>
+      </tr>
+      <tr>
+        <td><select name="1" id="1">
+            <option value="option">option</option>
+          </select></td>
+      </tr>
+      <tr>
+        <td><textarea name="" id="" cols="30" rows="10"></textarea></td>
+      </tr>
+      <tr>
+        <td><button>Button</button></td>
+      </tr>
+      <tr>
+        <td><button type="submit">Button type="subimt"</button></td>
+      </tr>
+    </table>
+  </form>
+  <div id="result"></div>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+  var submitEl = $('td :submit').parent('td').css({backgroundColor: 'yellow', border: '1px solid red'}).end(); 
+  $('#result').text('jQuery matched ' + submitEl.length + ' elements.');
+  $('form').submit(function(event) {
+    event.preventDefault();
+  });
+  $('#exampleTable').find('td').each(function (i, el) {
+    var inputEl = $(el).children();
+    var inputType = inputEl.attr('type') ? ' type="' + inputEl.attr('type') + '"' : '';
+    $(el).before("<td>" + inputEl[0].nodeName + inputType + "</td>");
+  });
+  </script>
+</body>
+</html>

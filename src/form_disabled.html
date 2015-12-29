@@ -2,16 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>JQuery</title>
+  <title>JQuery Form Disabled</title>
   <style>
 
   </style>
 </head>
 <body>
-  
+  <form action="">
+    <input type="text" name="email" disabled="disabled"><input type="text" name="id">
+  </form>
   <script type="text/javascript" src="../js/jquery.min.js"></script>   
   <script>
-
+    $('input:disabled').val("This is it");
   </script>
 </body>
 </html>

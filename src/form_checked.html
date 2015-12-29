@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery Form Checked</title>
+  <style>
+    div { color: red;}
+  </style>
+</head>
+<body>
+  <form action="#">
+    <p>
+      <input type="checkbox" name="newsletter" value="Hourly" checked="checked">
+      <input type="checkbox" name="newsletter" value="Daily">
+      <input type="checkbox" name="newsletter" value="Weekly">
+      <input type="checkbox" name="newsletter" value="Monthly" checked>
+      <input type="checkbox" name="newsletter" value="Yearly">
+    </p>
+  </form>
+  <div></div>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    var countChecked = function() {
+      var n = $('input:checked').length;
+      $('div').text(n + (n === 1 ? ' is' : ' are') + ' checked.');
+    };
+    countChecked();
+    $('input[type=checkbox]').on('click', countChecked);
+  </script>
+</body>
+</html>

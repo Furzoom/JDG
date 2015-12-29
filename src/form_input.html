@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery Form Input</title>
+  <style>
+    textarea {height: 35px;}
+    div { color: red;}
+    fieldset { margin: 0; padding: 0; border-width: 0px;}
+  </style>
+</head>
+<body>
+  <form action="#">
+      <input type="button" value="Input button">
+      <input type="checkbox">
+      <input type="file">
+      <input type="hidden">
+      <input type="image">
+      <input type="password">
+      <input type="radio">
+      <input type="reset">
+      <input type="submit">
+      <input type="text">
+      <select>
+        <option value="1">Option</option>
+      </select>
+      <textarea></textarea>
+      <button>Button</button>
+  </form> 
+  <div></div>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    var allInputs  = $(':input');
+    var formChildren = $('form > *');
+    $('div').text('Found ' + allInputs.length + ' inputs and the form has ' + formChildren.length + ' children.');
+    var input = $('form input:image').css({backgroundColor: 'yellow', border: '1px red solid'});
+    $('form').submit(function(event) {
+      event.preventDefault();
+    });
+  </script>
+</body>
+</html>
