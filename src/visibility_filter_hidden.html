@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Visibility Filter Hidden</title>
+	<style>
+		div {width: 70px; height: 40px; background-color: #e7f; margin: 5px; float: left;}
+		span { display: block; clear: left; color: red;}
+		.starthidden { display: none;}
+	</style>
+</head>
+<body>
+	<span></span>
+	<div></div>
+	<div style="display:none;">Hider!</div>
+	<div></div>
+	<div class="starthidden">Hider!</div>
+	<div></div>
+	<form action="#">
+		<input type="hidden">
+		<input type="hidden">
+		<input type="hidden">
+	</form>
+	<span></span>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>   
+	<script>
+		var hiddenElements = $('body').find(':hidden').not('script');
+		$('span:first').text('Found ' + hiddenElements.length + ' hidden elements total.');
+		$('div:hidden').show(3000);
+		$('span:last').text('Found ' + $('input:hidden').length + ' hidden inputs.');
+	</script>
+</body>
+</html>

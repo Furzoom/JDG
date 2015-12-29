@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Hierarchy Descendant</title>
+	<style>
+		form { border: 2px solid green; padding: 2px; margin: 0; background-color: #efe;}
+		div { color: red;}
+		fieldset { margin: 1px; padding: 3px;}
+	</style>
+</head>
+<body>
+	<form action="#">
+		<div>Form is surrounded by the green border.</div>
+		<label for="name">Child of form:</label>
+		<input type="text" name="name" id="name">
+		<fieldset><label for="newsletter">Grandchild of form, child of fieldset:</label><input type="text" name="newsletter" id="newsletter"></fieldset>
+	</form>
+	Sibling to form: <input name="none">
+	<script type="text/javascript" src="../js/jquery.min.js"></script>   
+	<script>
+		$('form input').css('border', '2px dotted blue');
+		$('form fieldset input').css('background-color', 'yellow');
+	</script>
+</body>
+</html>

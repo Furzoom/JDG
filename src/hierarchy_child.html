@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Hierarchy Child</title>
+	<style>
+		body { font-size: 14px;}
+	</style>
+</head>
+<body>
+	<ul class="topnav">
+			<li>Item 1</li>
+			<li>Item 2
+				<ul>
+					<li>Nested item 1</li>
+					<li>Nested item 2</li>
+					<li>Nested item 3</li>
+				</ul>
+			</li>
+			<li>Item 3</li>
+		</ul>	
+	<script type="text/javascript" src="../js/jquery.min.js"></script>   
+	<script>
+		$('ul.topnav > li').css('border', '1px solid red');
+	</script>
+</body>
+</html>
