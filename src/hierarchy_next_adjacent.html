@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Hierarchy Next Adjacent</title>
+	<style>
+
+	</style>
+</head>
+<body>
+	<form action="#">
+		<label for="name">Name: </label>
+		<input type="text" id="name" name="name">
+		<fieldset>
+			<label for="newsletter">Newsletter:</label>
+			<input type="text" name="newsletter" id="newsletter">
+		</fieldset>
+	</form>	
+	<input type="text" name="none">
+	<script type="text/javascript" src="../js/jquery.min.js"></script>   
+	<script>
+		$('label + input').css('color', 'blue').val('Lageled!');
+	</script>
+</body>
+</html>

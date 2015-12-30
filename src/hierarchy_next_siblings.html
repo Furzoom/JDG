@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery Hierarchy Next Siblings</title>
+	<style>
+		div, span { display: block; width: 80px; height: 80px; margin: 5px; background-color: #bfa; float: left; font-size: 14px;}
+		div#small { width: 60px; height: 25px; font-size: 12px; background-color: #fab;}
+	</style>
+</head>
+<body>
+	<div>div (doesn't mathc since before #prev)</div>
+	<span id="prev">span#prev</span>
+	<div>div sibling</div>
+	<div>div sibling
+		<div id="small">div niece</div>
+	</div>
+	<span>span sibling (not div)</span>
+	<div>div sibling</div>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>   
+	<script>
+		$('#prev ~ div').css('border', '3px groove blue');
+	</script>
+</body>
+</html>
