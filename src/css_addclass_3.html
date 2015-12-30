@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JQuery CSS addClass 3</title>
+	<style>
+    p { margin: 8px; font-size: 16px;}
+    div { background-color: white;}
+    .red { background-color: red;}
+    .red.green { background-color: green;}
+	</style>
+</head>
+<body>
+  <div>This div should be white.</div>
+  <div class="red">This div will be green, even through it has class red.</div>
+  <div>This div should be white.</div>
+  <p>There are zero green divs.</p>
+	<script type="text/javascript" src="../js/jquery.min.js"></script>   
+	<script>
+    $('div').addClass(function(index, currentClass) {
+      var addedClass;
+      if (currentClass === 'red') {
+        addedClass = 'green';
+        addedClass += ' ' + currentClass + index;
+        $('p').text('There are one green div.');
+      }
+      return addedClass;
+    });
+	</script>
+</body>
+</html>

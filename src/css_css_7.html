@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery CSS css 7</title>
+  <style>
+    div { width: 20px; height: 15px; background-color: #f33;}
+  </style>
+</head>
+<body>
+  <div>click</div>
+  <div>click</div>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    $('div').on('click', function() {
+      $(this).css({
+        width: function(index, value) {
+          return parseFloat(value) * 1.2;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
