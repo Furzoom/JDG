@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery CSS height 2</title>
+  <style>
+		div { width: 50px; height: 70px; float: left; margin: 5px; background-color: rgb(255, 140, 0);}
+  </style>
+</head>
+<body>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+  	$('div').one('click', function() {
+  		$(this).height(30).css({backgroundColor: 'yellow'});
+  	});
+  </script>
+</body>
+</html>
