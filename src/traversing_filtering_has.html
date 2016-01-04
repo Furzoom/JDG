@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery Traversing Filtering .has()</title>
+  <style>
+    .full { border: 1px solid red;}
+  </style>
+</head>
+<body>
+  <ul>
+     <li>Does the UL contain an LI?</li>
+   </ul> 
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    $('ul').append('<li>' + ($('ul').has('li').length ? 'yes' : 'no') + '</li>');
+    $('ul').has('li').addClass('full');
+  </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery Traversing Filtering .map() 3</title>
+  <style>
+    div { width: 40px; float: left;}
+    input { clear: left;}
+  </style>
+</head>
+<body>
+  <input type="button" value="equalize div heights"> 
+  <div style="background: red; height: 40px;"></div>
+  <div style="background: green; height: 70px;"></div>
+  <div style="background: blue; height: 50px;"></div>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    $.fn.equalizeHeights = function() {
+      var maxHeight = this.map(function(i, e) {
+        return $(e).height();
+      }).get();
+      return this.height(Math.max.apply(this, maxHeight));
+    };
+    $('input').click(function() {
+      $('div').equalizeHeights();
+    });
+  </script>
+</body>
+</html>
