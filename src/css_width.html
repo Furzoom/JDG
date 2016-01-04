@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>JQuery CSS height</title>
+  <title>JQuery CSS .width</title>
   <style>
 	body { background-color: yellow;}
 	button { font-size: 12px; margin: 2px;}
@@ -11,24 +11,24 @@
   </style>
 </head>
 <body>
-  <button id="getp">Get Paragraph Height.</button>
-  <button id="getd">Get Document Height.</button>
-  <button id="getw">Get Window Height.</button>
+  <button id="getp">Get Paragraph Width.</button>
+  <button id="getd">Get Document Width.</button>
+  <button id="getw">Get Window Width.</button>
   <div>&nbsp;</div>
-  <p>Sample paragraph to test height.</p>
+  <p>Sample paragraph to test width.</p>
   <script type="text/javascript" src="../js/jquery.min.js"></script>   
   <script>
-  	function showHeight(element, height) {
-  		$('div').text('The height for the ' + element + " is " + height + 'px.');
+  	function showWidth(element, width) {
+  		$('div').text('The width for the ' + element + " is " + width + 'px.');
   	}
   	$('#getp').click(function() {
-  		showHeight("paragraph", $('p').height());
+  		showWidth("paragraph", $('p').width());
   	});
   	$('#getd').click(function() {
-  		showHeight('document', $(document).height());
+  		showWidth('document', $(document).width());
   	});
   	$('#getw').click(function() {
-  		showHeight('window', $(window).height());
+  		showWidth('window', $(window).width());
   	});
   </script>
 </body>

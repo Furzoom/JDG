@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery Traversing Filtering .filter() 2</title>
+  <style>
+    div { width: 60px; height: 60px; margin: 5px; float: left; border: 3px white double;}
+  </style>
+</head>
+<body>
+  <div id="first"></div>
+  <div id="second"></div>
+  <div id="third"></div>
+  <div id="fourth"></div>
+  <div id="fifth"></div>
+  <div id="sixth"></div>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    $('div').css('backgroundColor', '#b4b0da')
+      .filter(function(index, element) {
+        console.log(this === element);
+        return index === 1 || $(this).attr('id') === 'fourth';
+      })
+      .css('border', '3px double red');
+    $('div').filter(document.getElementById('first')).css('backgroundColor', 'yellow');
+    $('div').filter($('#sixth')).css('border', '3px double green');
+  </script>
+</body>
+</html>

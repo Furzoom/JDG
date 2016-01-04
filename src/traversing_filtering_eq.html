@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery Traversing Filtering eq()</title>
+  <style>
+  div { width: 60px; height: 60px; margin: 10px; float: left; border: 2px solid blue;}
+  .blue { background-color: blue;}
+  </style>
+</head>
+<body>
+  <div></div>
+   <div></div>
+   <div></div>
+   <div></div>
+   <div></div>
+   <div></div> 
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    $('div').eq(2).addClass('blue').text('eq(2)');
+    $('div').eq(-1).addClass('blue').text('eq(-1)');
+  </script>
+</body>
+</html>
