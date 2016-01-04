@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery CSS .toggleClass() 1</title>
+  <style>
+    p { margin: 4px; font-size: 16px; font-weight: bolder; cursor: pointer;}
+    .blue { color: blue;}
+    .hightlight { background-color: yellow;}
+  </style>
+</head>
+<body>
+  <p class="blue">Click to toggle</p>
+  <p class="blue hightlight">hightlight</p>
+  <p class="blue">on these</p>
+  <p class="blue">paragraphs</p>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    $('p').click(function() {
+      $(this).toggleClass('hightlight');
+    });
+  </script>
+</body>
+</html>

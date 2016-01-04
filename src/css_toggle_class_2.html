@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery CSS .toggleClass() 2</title>
+  <style>
+    p { margin: 4px; font-size: 16px; font-weight: bolder; cursor: pointer;}
+    .blue { color: blue;}
+    .hightlight { background-color: red;}
+  </style>
+</head>
+<body>
+  <p class="blue">Click to toggle (<span>clicks: 0</span>)</p>
+  <p class="blue hightlight">hightlight (<span>clicks: 0</span>)</p>
+  <p class="blue">on these (<span>clicks: 0</span>)</p>
+  <p class="blue">paragraphs (<span>clicks: 0</span>)</p>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    $('p').each(function() {
+      var $thisParagraph = $(this);
+      var count = 0;
+      $thisParagraph.click(function() {
+        count++;
+        $thisParagraph.find('span').text('clicks: ' + count);
+        $thisParagraph.toggleClass('hightlight', count % 3 === 0);
+      });
+    });
+  </script>
+</body>
+</html>

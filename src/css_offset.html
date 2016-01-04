@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery CSS .offset()</title>
+  <style>
+    * { margin: 0; padding: 0;}
+    p { margin-left: 10px;}
+  </style>
+</head>
+<body>
+  <p>Hello</p>
+  <p>2nd Paragraph</p>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    var p = $('p:last');
+    var offset = p.offset();
+    p.html('left: ' + offset.left + ', top: ' + offset.top);
+  </script>
+</body>
+</html>

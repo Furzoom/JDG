@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JQuery CSS .outerWidth() 2</title>
+  <style>
+    div { width: 50px; padding: 10px; height: 60px; float: left; margin:  5px; background-color: red;}
+    .mod { background-color: blue;}
+  </style>
+</head>
+<body>
+  <div>d</div>
+  <div>d</div>
+  <div>d</div>
+  <div>d</div>
+  <div>d</div> 
+  <script type="text/javascript" src="../js/jquery.min.js"></script>   
+  <script>
+    var modWidth = 60;
+    $('div').one('click', function() {
+      $(this).outerWidth(modWidth).addClass('mod');
+      modWidth -= 8;
+    });
+  </script>
+</body>
+</html>
